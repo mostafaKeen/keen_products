@@ -65,7 +65,7 @@ class BitrixEntrypointController extends Controller
         $existingTenant = Tenant::where('member_id', $memberId)->first();
         if ($existingTenant && $existingTenant->install_status === Tenant::INSTALL_SUSPENDED) {
             return $this->installErrorResponse(
-                'This Bitrix24 portal account is suspended. Please contact app support.'
+                'This Bitrix24 portal account is suspended. Please contact app support at apps@keenenter.com.'
             );
         }
 
@@ -75,7 +75,7 @@ class BitrixEntrypointController extends Controller
         if (! $existingTenant || $isReinstall) {
             if (! $this->domainGuard->isAllowedInstallDomain($domain)) {
                 return $this->installErrorResponse(
-                    'This domain is not authorized for Bitrix24 Marketplace installation. Contact support to allowlist a Self-Hosted Bitrix24 domain.'
+                    'This domain is not authorized for Bitrix24 Marketplace installation. Contact support at apps@keenenter.com to allowlist a Self-Hosted Bitrix24 domain.'
                 );
             }
 
@@ -201,7 +201,7 @@ class BitrixEntrypointController extends Controller
         }
 
         if ($tenant->install_status === Tenant::INSTALL_SUSPENDED) {
-            return $this->appErrorResponse('This Bitrix24 portal account is suspended. Please contact app support.');
+            return $this->appErrorResponse('This Bitrix24 portal account is suspended. Please contact app support at apps@keenenter.com.');
         }
 
         if (! empty($tenant->application_token_enc) && $appToken !== '' && ! $tenant->verifyApplicationToken($appToken)) {
@@ -249,7 +249,7 @@ class BitrixEntrypointController extends Controller
         if (! $tenant->isUserAllowed($b24UserId)) {
             $userTag = $b24UserId ? " (User ID #{$b24UserId})" : '';
 
-            return $this->appErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted access to this application. Please contact your portal administrator to assign a license seat.");
+            return $this->appErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted access to this application. Please contact your portal administrator or reach support at apps@keenenter.com to assign a license seat.");
         }
 
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
@@ -312,7 +312,7 @@ class BitrixEntrypointController extends Controller
 
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
         if (! $subEval['allowed']) {
-            return $this->widgetErrorResponse($subEval['reason'] ?? 'Subscription is inactive. Please contact support.');
+            return $this->widgetErrorResponse($subEval['reason'] ?? 'Subscription is inactive. Please contact support at apps@keenenter.com.');
         }
 
         if (! empty($tenant->application_token_enc) && $appToken !== '' && ! $tenant->verifyApplicationToken($appToken)) {
@@ -332,7 +332,7 @@ class BitrixEntrypointController extends Controller
         if (! $tenant->isUserAllowed($b24UserId)) {
             $userTag = $b24UserId ? " (User ID #{$b24UserId})" : '';
 
-            return $this->widgetErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted a license to use this widget. Please contact your portal administrator to assign a license seat.");
+            return $this->widgetErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted a license to use this widget. Please contact your portal administrator or reach support at apps@keenenter.com to assign a license seat.");
         }
 
         $entityTypeId = $this->resolveEntityTypeIdFromPlacement($placement);

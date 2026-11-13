@@ -7,7 +7,7 @@ export default function AppLogo() {
                 <AppLogoIcon className="size-5 fill-current text-white" />
             </div>
             <div className="ml-1 grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold tracking-tight">FeeMatrix24</span>
+                <span className="truncate font-semibold tracking-tight">KEEN Products</span>
                 <span className="text-muted-foreground truncate text-[11px]">Bitrix24 SaaS</span>
             </div>
         </>

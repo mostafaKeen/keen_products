@@ -59,7 +59,7 @@ export default function AdminPlansIndex({ plans }: { plans: PlanItem[] }) {
         price_monthly_cents: 4900,
         price_yearly_cents: 49000,
         currency: 'USD',
-        trial_days: 14,
+        trial_days: 7,
         max_monthly_syncs: '' as string | number,
         max_options: 2,
         sort_order: 10,

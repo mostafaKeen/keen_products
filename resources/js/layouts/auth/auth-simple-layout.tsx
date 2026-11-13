@@ -27,6 +27,12 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                         </div>
                     </div>
                     {children}
+                    <p className="text-center text-xs text-muted-foreground">
+                        Need assistance? Contact support at{' '}
+                        <a href="mailto:apps@keenenter.com" className="text-foreground font-medium underline">
+                            apps@keenenter.com
+                        </a>
+                    </p>
                 </div>
             </div>
         </div>

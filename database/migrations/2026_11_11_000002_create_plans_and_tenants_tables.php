@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('price_monthly_cents')->default(0);
             $table->unsignedInteger('price_yearly_cents')->default(0);
             $table->string('currency', 3)->default('USD');
-            $table->unsignedInteger('trial_days')->default(14);
+            $table->unsignedInteger('trial_days')->default(7);
             $table->unsignedInteger('max_monthly_syncs')->nullable(); // null = unlimited
             $table->unsignedInteger('max_options')->default(2);
             $table->json('features_json')->nullable();

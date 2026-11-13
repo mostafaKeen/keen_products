@@ -106,8 +106,14 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Installation Verification Required</AlertTitle>
-                        <AlertDescription>
-                            {error || 'Launch this Installation Wizard directly from your Bitrix24 Marketplace installation.'}
+                        <AlertDescription className="space-y-2">
+                            <p>{error || 'Launch this Installation Wizard directly from your Bitrix24 Marketplace installation.'}</p>
+                            <p className="text-xs">
+                                Need technical assistance? Contact our support team at{' '}
+                                <a href="mailto:apps@keenenter.com" className="font-semibold underline">
+                                    apps@keenenter.com
+                                </a>.
+                            </p>
                         </AlertDescription>
                     </Alert>
                 </div>
@@ -123,13 +129,13 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
 
     return (
         <div className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-            <Head title={`Install Fee Matrix — ${tenantState.domain}`} />
+            <Head title={`Install KEEN Products — ${tenantState.domain}`} />
 
             <div className="mx-auto max-w-5xl space-y-6">
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Bitrix24 Fee Breakdown Installer</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">KEEN Products Installer</h1>
                         <p className="text-muted-foreground text-sm">
                             Portal: <span className="text-foreground font-medium">{tenantState.domain}</span> · Member ID:{' '}
                             <span className="font-mono text-xs">{tenantState.member_id}</span>
@@ -179,7 +185,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                                 <CardTitle>Portal Connected & Authenticated</CardTitle>
                                 <CardDescription>
                                     Your Bitrix24 OAuth tokens and portal identity are verified. Your portal begins on the{' '}
-                                    <strong>{subscription?.plan?.name ?? '14-Day Free Trial'}</strong> ({subscription?.status ?? 'trialing'}).
+                                    <strong>{subscription?.plan?.name ?? '7-Day Free Trial'}</strong> ({subscription?.status ?? 'trialing'}).
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -284,7 +290,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                                     <AlertDescription className="space-y-2">
                                         <p>
                                             Portal status is now <strong>{completeResult.install_status}</strong>. You can now open any configured
-                                            Deal, Lead, or Quote in Bitrix24 and use the <strong>Fee Breakdown</strong> tab.
+                                            Deal, Lead, or Quote in Bitrix24 and use the <strong>KEEN Products</strong> tab.
                                         </p>
                                         {completeResult.bindings?.placements && (
                                             <div className="text-xs">
@@ -313,6 +319,14 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Footer Help */}
+                <div className="pt-2 text-center text-xs text-muted-foreground">
+                    <span>Questions during installation? Contact support at </span>
+                    <a href="mailto:apps@keenenter.com" className="font-medium text-indigo-600 hover:underline dark:text-indigo-400">
+                        apps@keenenter.com
+                    </a>
+                </div>
             </div>
         </div>
     );

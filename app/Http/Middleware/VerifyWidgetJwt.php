@@ -67,7 +67,7 @@ class VerifyWidgetJwt
         if ($tenant->install_status === Tenant::INSTALL_SUSPENDED) {
             return response()->json([
                 'success' => false,
-                'message' => 'This Bitrix24 portal account is suspended. Please contact app support.',
+                'message' => 'This Bitrix24 portal account is suspended. Please contact app support at apps@keenenter.com.',
             ], 403);
         }
 
@@ -82,7 +82,7 @@ class VerifyWidgetJwt
         if (! $subEval['allowed']) {
             return response()->json([
                 'success' => false,
-                'message' => $subEval['reason'] ?? 'Subscription is inactive. Please contact support.',
+                'message' => $subEval['reason'] ?? 'Subscription is inactive. Please contact support at apps@keenenter.com.',
             ], 403);
         }
 
@@ -90,7 +90,7 @@ class VerifyWidgetJwt
         if (! $tenant->isUserAllowed($b24UserId)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied: Your Bitrix24 user account is not authorized to access this application.',
+                'message' => 'Access denied: Your Bitrix24 user account is not authorized to access this application. Please contact your administrator or apps@keenenter.com.',
             ], 403);
         }
 

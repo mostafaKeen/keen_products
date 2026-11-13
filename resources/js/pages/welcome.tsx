@@ -6,6 +6,7 @@ import {
     GitBranch,
     Layers,
     Lock,
+    Mail,
     RefreshCw,
     ShieldCheck,
     Sparkles,
@@ -56,7 +57,7 @@ const rolloutSteps = [
 export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
     return (
         <PublicLayout>
-            <Head title="FeeMatrix24 — Multi-Option Fee Breakdown & SPA Sync for Bitrix24" />
+            <Head title="KEEN Products — Multi-Option Fee Breakdown & SPA Sync for Bitrix24" />
 
             {/* Hero */}
             <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/75 via-white to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/35 dark:via-slate-950 dark:to-slate-950">
@@ -75,7 +76,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                         </h1>
 
                         <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
-                            Stop hardcoding portal-specific custom fields. <span className="font-semibold text-foreground">FeeMatrix24</span>{' '}
+                            Stop hardcoding portal-specific custom fields. <span className="font-semibold text-foreground">KEEN Products</span>{' '}
                             dynamically provisions or crosswalks each customer’s Catalog properties, Enum IDs,{' '}
                             <code className="rounded bg-slate-200/70 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">UF_CRM_*</code>{' '}
                             fields, and Smart Processes while syncing Leads, Deals, Quotes, Invoices, and SPAs in real time.
@@ -121,7 +122,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                                     <div className="flex h-6 w-6 items-center justify-center rounded bg-indigo-500">
                                         <Layers className="h-3.5 w-3.5 text-white" />
                                     </div>
-                                    <span className="text-xs font-semibold">Bitrix24 Deal #4821 — Fee Matrix Placement</span>
+                                    <span className="text-xs font-semibold">Bitrix24 Deal #4821 — KEEN Products Placement</span>
                                 </div>
                                 <Badge className="bg-emerald-500/20 text-[10px] text-emerald-300 hover:bg-emerald-500/20">
                                     Synced &bull; 140ms
@@ -193,7 +194,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                         <h2 className="text-2xl font-bold tracking-tight">Built for Multi-Tenant Marketplace Scale</h2>
                         <p className="text-sm text-muted-foreground">
                             Every installed Bitrix24 account assigns its own internal IDs to properties, enums, CRM custom fields, and
-                            Smart Processes. FeeMatrix24 abstracts those differences cleanly per tenant.
+                            Smart Processes. KEEN Products abstracts those differences cleanly per tenant.
                         </p>
                     </div>
 
@@ -358,6 +359,35 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                         </div>
                     </section>
                 )}
+
+                {/* Contact Us Callout */}
+                <section className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/80 via-white to-indigo-50/50 p-8 shadow-xs dark:border-indigo-950 dark:from-indigo-950/30 dark:via-slate-900 dark:to-indigo-950/20">
+                    <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+                        <div className="space-y-2 text-center md:text-left">
+                            <Badge
+                                variant="secondary"
+                                className="gap-1.5 border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300"
+                            >
+                                <Mail className="h-3.5 w-3.5" />
+                                Support &amp; Integration
+                            </Badge>
+                            <h3 className="text-xl font-bold tracking-tight">Need Help or a Custom Bitrix24 Setup?</h3>
+                            <p className="text-muted-foreground max-w-xl text-sm">
+                                Have questions regarding our 7-day free trial, complex multi-SPA pipelines, custom fields, or dedicated enterprise agreements? Reach out to our engineering team directly.
+                            </p>
+                        </div>
+                        <Button
+                            asChild
+                            size="lg"
+                            className="shrink-0 bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                        >
+                            <a href="mailto:apps@keenenter.com">
+                                <Mail className="mr-2 h-4 w-4" />
+                                Contact Us (apps@keenenter.com)
+                            </a>
+                        </Button>
+                    </div>
+                </section>
             </div>
         </PublicLayout>
     );

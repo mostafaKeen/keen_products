@@ -8,6 +8,7 @@ import {
     Edit3,
     Layers,
     Loader2,
+    Mail,
     PackagePlus,
     Plus,
     RefreshCw,
@@ -529,6 +530,12 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                             <p>
                                 Please contact your Bitrix24 portal administrator. They can grant your user account a licensed seat from the <strong>Application Settings &gt; User Access &amp; Seat Allocation</strong> menu.
                             </p>
+                            <p className="mt-2.5 pt-2 border-t border-slate-200/80 text-[11px] text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                                Need technical support or have billing questions? Contact us at{' '}
+                                <a href="mailto:apps@keenenter.com" className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
+                                    apps@keenenter.com
+                                </a>
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -541,7 +548,7 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
 
     return (
         <div className="min-h-screen bg-slate-50/70 p-4 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-            <Head title={`Fee Matrix — ${entity.title}`} />
+            <Head title={`KEEN Products — ${entity.title}`} />
 
             <div className="mx-auto max-w-[1400px] space-y-4">
                 {/* Top Header Bar */}
@@ -658,7 +665,12 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                     <Alert variant={isBlocked ? 'destructive' : 'default'}>
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>{isBlocked ? 'Sync Disabled by Subscription' : 'Subscription Notice'}</AlertTitle>
-                        <AlertDescription>{subscription.banner}</AlertDescription>
+                        <AlertDescription className="flex flex-wrap items-center justify-between gap-2">
+                            <span>{subscription.banner}</span>
+                            <a href="mailto:apps@keenenter.com" className="font-semibold underline">
+                                Contact Support (apps@keenenter.com)
+                            </a>
+                        </AlertDescription>
                     </Alert>
                 )}
 
@@ -1247,6 +1259,14 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Widget Support Line */}
+            <div className="pt-2 text-center text-xs text-muted-foreground">
+                <span>KEEN Products &bull; Need help or feature assistance? Contact us at </span>
+                <a href="mailto:apps@keenenter.com" className="font-medium text-indigo-600 hover:underline dark:text-indigo-400">
+                    apps@keenenter.com
+                </a>
+            </div>
         </div>
     );
 }

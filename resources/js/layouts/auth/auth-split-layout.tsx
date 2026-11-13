@@ -36,7 +36,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                             <AppLogoIcon className="h-5 w-5 fill-current text-white" />
                         </div>
                         <div className="leading-tight">
-                            <div className="text-sm font-bold tracking-tight text-white">FeeMatrix24</div>
+                            <div className="text-sm font-bold tracking-tight text-white">KEEN Products</div>
                             <div className="text-[11px] text-slate-400">Bitrix24 Marketplace SaaS</div>
                         </div>
                     </Link>
@@ -59,7 +59,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
 
                     <div className="space-y-3">
                         <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                            Dynamic Fee Matrix &amp; Schema Automation for Bitrix24
+                            KEEN Products &amp; Schema Automation for Bitrix24
                         </h2>
                         <p className="text-sm leading-relaxed text-slate-300">
                             Manage subscription tiers, inspect Bitrix24 Cloud &amp; On-Premise portal integrations, and govern automated CRM &amp; SPA
@@ -92,7 +92,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
                             <AppLogoIcon className="h-4 w-4 fill-current text-white" />
                         </div>
-                        <span className="text-foreground text-sm font-bold tracking-tight">FeeMatrix24</span>
+                        <span className="text-foreground text-sm font-bold tracking-tight">KEEN Products</span>
                     </Link>
 
                     <Link
@@ -100,7 +100,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                         className="text-muted-foreground hover:text-foreground ml-auto inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
                     >
                         <ArrowLeft className="h-3.5 w-3.5" />
-                        Back to FeeMatrix24
+                        Back to KEEN Products
                     </Link>
                 </div>
 
@@ -114,8 +114,14 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                     </div>
                 </div>
 
-                <div className="text-muted-foreground text-center text-xs">
-                    <span>Bitrix24 portal administrators can also launch directly from their Bitrix24 left menu placement.</span>
+                <div className="text-muted-foreground space-y-1 text-center text-xs">
+                    <div>Bitrix24 portal administrators can also launch directly from their Bitrix24 left menu placement.</div>
+                    <div>
+                        Need help or enterprise onboarding? Contact us at{' '}
+                        <a href="mailto:apps@keenenter.com" className="text-foreground hover:underline font-medium">
+                            apps@keenenter.com
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

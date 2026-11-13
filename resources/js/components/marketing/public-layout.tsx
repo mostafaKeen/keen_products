@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowRight, ExternalLink, Menu, X } from 'lucide-react';
+import { ArrowRight, ExternalLink, Mail, Menu, X } from 'lucide-react';
 import { type PropsWithChildren, useState } from 'react';
 
 import AppLogoIcon from '@/components/app-logo-icon';
@@ -58,7 +58,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             <AppLogoIcon className="h-5 w-5 fill-current text-white" />
                         </div>
                         <div className="leading-tight">
-                            <div className="text-sm font-bold tracking-tight">FeeMatrix24</div>
+                            <div className="text-sm font-bold tracking-tight">KEEN Products</div>
                             <div className="text-muted-foreground text-[11px]">Bitrix24 Marketplace SaaS</div>
                         </div>
                     </Link>
@@ -80,6 +80,12 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                 </Link>
                             );
                         })}
+                        <a
+                            href="mailto:apps@keenenter.com"
+                            className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"
+                        >
+                            Contact Us
+                        </a>
                     </nav>
 
                     <div className="hidden items-center gap-2.5 text-sm md:flex">
@@ -143,6 +149,13 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                     </Link>
                                 );
                             })}
+                            <a
+                                href="mailto:apps@keenenter.com"
+                                onClick={() => setMobileOpen(false)}
+                                className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-900"
+                            >
+                                Contact Us (apps@keenenter.com)
+                            </a>
                         </div>
                         <div className="flex flex-col gap-2 border-t border-slate-200 pt-3 dark:border-slate-800">
                             {auth.user ? (
@@ -170,12 +183,12 @@ export default function PublicLayout({ children }: PropsWithChildren) {
 
             <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
                 <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 md:grid-cols-12">
-                    <div className="space-y-3 md:col-span-5">
+                    <div className="space-y-3 md:col-span-4">
                         <div className="flex items-center gap-2.5">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white dark:bg-indigo-500">
                                 <AppLogoIcon className="h-4 w-4 fill-current text-white" />
                             </div>
-                            <span className="text-sm font-bold tracking-tight">FeeMatrix24</span>
+                            <span className="text-sm font-bold tracking-tight">KEEN Products</span>
                         </div>
                         <p className="text-muted-foreground max-w-sm text-xs leading-relaxed">
                             Multi-tenant Bitrix24 Marketplace app for dynamic Professional vs. Government fee breakdowns, automatic portal
@@ -183,7 +196,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         </p>
                     </div>
 
-                    <div className="space-y-2.5 text-xs md:col-span-3">
+                    <div className="space-y-2.5 text-xs md:col-span-2">
                         <div className="text-foreground font-semibold">Product</div>
                         <ul className="text-muted-foreground space-y-1.5">
                             <li>
@@ -204,7 +217,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         </ul>
                     </div>
 
-                    <div className="space-y-2.5 text-xs md:col-span-4">
+                    <div className="space-y-2.5 text-xs md:col-span-3">
                         <div className="text-foreground font-semibold">Platform Access</div>
                         <ul className="text-muted-foreground space-y-1.5">
                             {auth.user ? (
@@ -221,7 +234,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                 <>
                                     <li>
                                         <Link href={route('login')} className="hover:text-foreground">
-                                            Sign in to Console
+                                             Sign in to Console
                                         </Link>
                                     </li>
                                     <li>
@@ -238,10 +251,24 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             )}
                         </ul>
                     </div>
+
+                    <div className="space-y-2.5 text-xs md:col-span-3">
+                        <div className="text-foreground font-semibold">Contact &amp; Support</div>
+                        <p className="text-muted-foreground text-xs leading-relaxed">
+                            Need technical support, custom deployment, or enterprise licensing?
+                        </p>
+                        <a
+                            href="mailto:apps@keenenter.com"
+                            className="inline-flex items-center gap-1.5 font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                        >
+                            <Mail className="h-3.5 w-3.5" />
+                            apps@keenenter.com
+                        </a>
+                    </div>
                 </div>
                 <div className="border-t border-slate-200/70 dark:border-slate-800/70">
                     <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs sm:flex-row">
-                        <span>&copy; {new Date().getFullYear()} FeeMatrix24. Built for Bitrix24 Cloud &amp; On-Premise.</span>
+                        <span>&copy; {new Date().getFullYear()} KEEN Products. Built for Bitrix24 Cloud &amp; On-Premise.</span>
                         <span>Multi-tenant isolation powered by per-portal schema mapping &amp; encrypted OAuth.</span>
                     </div>
                 </div>

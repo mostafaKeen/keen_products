@@ -32,8 +32,8 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout title="Create your FeeMatrix24 account" description="Set up your account to access workspace tools and platform onboarding">
-            <Head title="Register — FeeMatrix24" />
+        <AuthLayout title="Create your KEEN Products account" description="Set up your account to access workspace tools and platform onboarding">
+            <Head title="Register — KEEN Products" />
 
             <form className="flex flex-col gap-5" onSubmit={submit}>
                 <div className="grid gap-4">

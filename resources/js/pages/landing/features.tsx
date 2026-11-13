@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeftRight, ArrowRight, CheckCircle2, Cpu, DatabaseZap, KeyRound, Layers, ShieldCheck, Sliders } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, CheckCircle2, Cpu, DatabaseZap, KeyRound, Layers, Mail, ShieldCheck, Sliders } from 'lucide-react';
 
 import { EndpointUrlsCard } from '@/components/marketing/endpoint-urls-card';
 import PublicLayout, { type BitrixAppUrls } from '@/components/marketing/public-layout';
@@ -47,7 +47,7 @@ const schemaCrosswalk = [
 export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
     return (
         <PublicLayout>
-            <Head title="Architecture & Sync — FeeMatrix24" />
+            <Head title="Architecture & Sync — KEEN Products" />
 
             <section className="border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/70 to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/30 dark:to-slate-950">
                 <div className="mx-auto max-w-6xl space-y-4 px-6 py-14">
@@ -75,7 +75,7 @@ export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
                         <div>
                             <h2 className="text-xl font-bold tracking-tight">Per-Tenant Field &amp; Enum Crosswalk</h2>
                             <p className="text-muted-foreground text-sm">
-                                FeeMatrix24 translates each customer portal&rsquo;s native Bitrix24 identifiers into canonical keys once at
+                                KEEN Products translates each customer portal&rsquo;s native Bitrix24 identifiers into canonical keys once at
                                 onboarding.
                             </p>
                         </div>
@@ -211,10 +211,10 @@ export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
                                 </Link>
                             </Button>
                             <Button asChild variant="outline">
-                                <Link href={route('register')}>
-                                    <Layers className="mr-1.5 h-4 w-4" />
-                                    Create Account
-                                </Link>
+                                <a href="mailto:apps@keenenter.com">
+                                    <Mail className="mr-1.5 h-4 w-4" />
+                                    Contact Us (apps@keenenter.com)
+                                </a>
                             </Button>
                         </div>
                     </div>

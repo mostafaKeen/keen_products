@@ -16,11 +16,11 @@ export default function VerifyEmail({ status }: { status?: string }) {
 
     return (
         <AuthLayout title="Verify your email address" description="Click the verification link we sent to your inbox to activate your account">
-            <Head title="Email verification — FeeMatrix24" />
+            <Head title="Email verification — KEEN Products" />
 
             <div className="mb-5 flex items-start gap-3 rounded-lg border border-indigo-200/80 bg-indigo-50/70 p-3.5 text-xs text-indigo-900 dark:border-indigo-900/60 dark:bg-indigo-950/35 dark:text-indigo-200">
                 <MailCheck className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
-                <span>Check your inbox and spam folder for a message from FeeMatrix24. Need another link? Request a fresh email below.</span>
+                <span>Check your inbox and spam folder for a message from KEEN Products. Need another link? Request a fresh email below.</span>
             </div>
 
             {status === 'verification-link-sent' && (

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { Activity, AlertCircle, CheckCircle2, CreditCard, Link2, Loader2, Play, RefreshCw, Shield, Sliders } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle2, CreditCard, Link2, Loader2, Mail, Play, RefreshCw, Shield, Sliders } from 'lucide-react';
 import { useState } from 'react';
 
 import { SchemaMapper, type PortalTenantSchema } from '@/components/bitrix/schema-mapper';
@@ -124,12 +124,12 @@ export default function BitrixPortalAdmin({
     if (!is_admin) {
         return (
             <div className="min-h-screen bg-slate-50 p-6 dark:bg-slate-950">
-                <Head title={`Fee Breakdown — ${tenant.domain}`} />
+                <Head title={`KEEN Products — ${tenant.domain}`} />
                 <div className="mx-auto max-w-2xl space-y-4">
                     <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                                <CardTitle>Fee Breakdown Matrix</CardTitle>
+                                <CardTitle>KEEN Products</CardTitle>
                                 <Badge variant="secondary">{subEval?.plan?.name ?? 'Trial'}</Badge>
                             </div>
                             <CardDescription>
@@ -139,7 +139,7 @@ export default function BitrixPortalAdmin({
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <p className="text-muted-foreground">
-                                You can manage Fee Breakdown lines directly inside any enabled CRM Deal, Lead, Quote, or Smart Process tab.
+                                You can manage KEEN Products lines directly inside any enabled CRM Deal, Lead, Quote, or Smart Process tab.
                                 Configuration changes and subscription upgrades require a Bitrix24 Portal Administrator.
                             </p>
                             {subEval?.banner && (
@@ -240,14 +240,14 @@ export default function BitrixPortalAdmin({
 
     return (
         <div className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-            <Head title={`Portal Settings — ${tenant.domain}`} />
+            <Head title={`KEEN Products Settings — ${tenant.domain}`} />
 
             <div className="mx-auto max-w-6xl space-y-5">
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold tracking-tight">Fee Breakdown Console</h1>
+                            <h1 className="text-2xl font-bold tracking-tight">KEEN Products Console</h1>
                             <Badge variant="outline" className="font-mono text-xs">
                                 {tenant.domain}
                             </Badge>
@@ -257,7 +257,7 @@ export default function BitrixPortalAdmin({
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         {[
                             { id: 'overview', label: 'Overview', icon: Shield },
                             { id: 'schema', label: 'Schema & Fields', icon: Sliders },
@@ -277,6 +277,12 @@ export default function BitrixPortalAdmin({
                                 </Button>
                             );
                         })}
+                        <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+                            <a href="mailto:apps@keenenter.com">
+                                <Mail className="mr-1.5 h-3.5 w-3.5" />
+                                Contact Support
+                            </a>
+                        </Button>
                     </div>
                 </div>
 
@@ -513,6 +519,10 @@ export default function BitrixPortalAdmin({
                                     <CardTitle className="text-base">Choose Your Portal Plan</CardTitle>
                                     <CardDescription>
                                         Requesting a plan notifies our SaaS billing team to activate your subscription or send an invoice.
+                                        You can also contact support directly at{' '}
+                                        <a href="mailto:apps@keenenter.com" className="font-medium text-indigo-600 underline dark:text-indigo-400">
+                                            apps@keenenter.com
+                                        </a>.
                                     </CardDescription>
                                 </div>
                                 <div className="flex items-center gap-1 rounded-md border p-1">

@@ -21,7 +21,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
     return (
         <AuthLayout title="Reset your password" description="Enter your account email and we will send you a secure reset link">
-            <Head title="Forgot password — FeeMatrix24" />
+            <Head title="Forgot password — KEEN Products" />
 
             {status && (
                 <div className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300">

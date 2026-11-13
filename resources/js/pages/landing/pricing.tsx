@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, CheckCircle2, HelpCircle, Minus, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle2, HelpCircle, Mail, Minus, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 
 import PublicLayout, { formatMoney, type PublicPlan } from '@/components/marketing/public-layout';
@@ -14,7 +14,7 @@ interface PricingPageProps {
 const faqs = [
     {
         q: 'How does the trial start when a customer installs the Bitrix24 app?',
-        a: 'During Marketplace installation (/bitrix/install), FeeMatrix24 provisions the tenant portal row and activates the default trial subscription automatically using the configured plan trial_days.',
+        a: 'During Marketplace installation (/bitrix/install), KEEN Products provisions the tenant portal row and activates the default 7-day free trial subscription automatically using the configured plan trial_days.',
     },
     {
         q: 'What if two Bitrix24 portals have completely different UF_CRM_* or Catalog property IDs?',
@@ -27,6 +27,10 @@ const faqs = [
     {
         q: 'How are Super Admin overrides and enterprise contracts handled?',
         a: 'SaaS operators can log into the Super Admin Console to manage plans, extend trials, apply custom grants or suspensions, inspect sync queues, and record every billing action in AdminAuditLog.',
+    },
+    {
+        q: 'How do I contact support or request custom onboarding?',
+        a: 'You can email our team directly at apps@keenenter.com for prompt assistance with setup, enterprise agreements, or technical questions.',
     },
 ];
 
@@ -42,7 +46,7 @@ export default function PricingPage({ plans = [] }: PricingPageProps) {
 
     return (
         <PublicLayout>
-            <Head title="Pricing & Subscription Tiers — FeeMatrix24" />
+            <Head title="Pricing & Subscription Tiers — KEEN Products" />
 
             <section className="border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/70 to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/30 dark:to-slate-950">
                 <div className="mx-auto max-w-6xl space-y-5 px-6 py-14 text-center">
@@ -239,6 +243,24 @@ export default function PricingPage({ plans = [] }: PricingPageProps) {
                                 <CardContent className="text-muted-foreground text-xs leading-relaxed">{item.a}</CardContent>
                             </Card>
                         ))}
+                    </div>
+                </section>
+
+                {/* Contact Us Section */}
+                <section className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/80 via-white to-indigo-50/50 p-8 text-center shadow-xs dark:border-indigo-950 dark:from-indigo-950/30 dark:via-slate-900 dark:to-indigo-950/20">
+                    <div className="mx-auto max-w-xl space-y-3">
+                        <h3 className="text-xl font-bold tracking-tight">Need a Tailored Plan or Enterprise Contract?</h3>
+                        <p className="text-muted-foreground text-sm">
+                            We offer custom seat licensing, high-frequency background sync quotas, and dedicated onboarding for large Bitrix24 organizations.
+                        </p>
+                        <div className="pt-2">
+                            <Button asChild size="lg" className="bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                                <a href="mailto:apps@keenenter.com">
+                                    <Mail className="mr-2 h-4 w-4" />
+                                    Contact Us (apps@keenenter.com)
+                                </a>
+                            </Button>
+                        </div>
                     </div>
                 </section>
             </div>

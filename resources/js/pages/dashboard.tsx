@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ShieldAlert, Sparkles } from 'lucide-react';
+import { Mail, ShieldAlert, Sparkles } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -25,7 +25,7 @@ export default function Dashboard() {
                             <Sparkles className="h-5 w-5 text-indigo-600" />
                             Welcome, {auth.user.name}
                         </CardTitle>
-                        <CardDescription>Bitrix24 Multi-Tenant Fee Breakdown &amp; SPA Sync Platform</CardDescription>
+                        <CardDescription>Bitrix24 Multi-Tenant KEEN Products Platform</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Alert>
@@ -48,6 +48,17 @@ export default function Dashboard() {
                             <Link href="/" className="hover:bg-muted inline-flex items-center rounded-md border px-3 py-1.5 font-medium">
                                 Marketplace Setup Overview
                             </Link>
+                        </div>
+
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+                            <span>Need help or have questions about your portal integration? Contact us at </span>
+                            <a
+                                href="mailto:apps@keenenter.com"
+                                className="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
+                            >
+                                <Mail className="h-3 w-3" />
+                                apps@keenenter.com
+                            </a>
                         </div>
                     </CardContent>
                 </Card>

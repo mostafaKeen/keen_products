@@ -36,8 +36,8 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
     };
 
     return (
-        <AuthLayout title="Set a new password" description="Choose a new strong password for your FeeMatrix24 account">
-            <Head title="Reset password — FeeMatrix24" />
+        <AuthLayout title="Set a new password" description="Choose a new strong password for your KEEN Products account">
+            <Head title="Reset password — KEEN Products" />
 
             <form onSubmit={submit} className="flex flex-col gap-5">
                 <div className="grid gap-4">

@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Activity, Building2, CreditCard, Layers, LayoutGrid } from 'lucide-react';
+import { Activity, Building2, CreditCard, Layers, LayoutGrid, Mail } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const userNavItems: NavItem[] = [
@@ -43,6 +43,14 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
+const supportFooterItems: NavItem[] = [
+    {
+        title: 'apps@keenenter.com',
+        url: 'mailto:apps@keenenter.com',
+        icon: Mail,
+    },
+];
+
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
     const isSuperAdmin = Boolean(auth?.user?.is_super_admin);
@@ -68,7 +76,7 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={[]} className="mt-auto" />
+                <NavFooter items={supportFooterItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

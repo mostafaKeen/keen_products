@@ -31,7 +31,7 @@ class SubscriptionGate
                 'price_monthly_cents' => 0,
                 'price_yearly_cents' => 0,
                 'currency' => 'USD',
-                'trial_days' => (int) config('services.bitrix24.default_trial_days', 14),
+                'trial_days' => (int) config('services.bitrix24.default_trial_days', 7),
                 'max_monthly_syncs' => 150,
                 'max_options' => 2,
                 'features_json' => [
@@ -44,7 +44,7 @@ class SubscriptionGate
             ]);
         }
 
-        $trialDays = max(1, (int) ($trialPlan->trial_days ?: config('services.bitrix24.default_trial_days', 14)));
+        $trialDays = max(1, (int) ($trialPlan->trial_days ?: config('services.bitrix24.default_trial_days', 7)));
         $now = now();
 
         return Subscription::create([
@@ -103,7 +103,7 @@ class SubscriptionGate
 
         if ($tenant->install_status === Tenant::INSTALL_SUSPENDED) {
             $allowed = false;
-            $reason = 'This Bitrix24 portal account is suspended. Please contact app support.';
+            $reason = 'This Bitrix24 portal account is suspended. Please contact app support at apps@keenenter.com.';
         } elseif ($tenant->install_status === Tenant::INSTALL_UNINSTALLED) {
             $allowed = false;
             $reason = 'The application has been uninstalled from this Bitrix24 portal.';
@@ -115,10 +115,10 @@ class SubscriptionGate
         ], true)) {
             $allowed = false;
             $reason = match ($subscription->status) {
-                Subscription::STATUS_SUSPENDED => 'Subscription is suspended. Contact support or renew your plan.',
-                Subscription::STATUS_PAST_DUE => 'Subscription payment is past due. Please renew in App Settings.',
-                Subscription::STATUS_CANCELED => 'Subscription was canceled. Choose a plan in App Settings to resume syncing.',
-                default => 'Your trial or billing period has expired. Please upgrade your subscription in App Settings.',
+                Subscription::STATUS_SUSPENDED => 'Subscription is suspended. Contact support at apps@keenenter.com or renew your plan.',
+                Subscription::STATUS_PAST_DUE => 'Subscription payment is past due. Please renew in App Settings or contact apps@keenenter.com.',
+                Subscription::STATUS_CANCELED => 'Subscription was canceled. Choose a plan in App Settings or contact apps@keenenter.com.',
+                default => 'Your trial or billing period has expired. Please upgrade your subscription in App Settings or contact apps@keenenter.com.',
             };
         } elseif ($subscription->status === Subscription::STATUS_GRACE_PERIOD) {
             $daysLeft = $subscription->grace_ends_at
