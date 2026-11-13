@@ -11,6 +11,8 @@ export function EndpointUrlsCard({ appUrls }: { appUrls?: BitrixAppUrls }) {
         { key: 'install', label: 'Install Handler URL', value: appUrls?.install ?? '/bitrix/install' },
         { key: 'app', label: 'Application Handler URL (PLACEMENT)', value: appUrls?.app ?? '/bitrix/app' },
         { key: 'events', label: 'Event Webhook URL', value: appUrls?.events ?? '/bitrix/events' },
+        { key: 'eula', label: 'Marketplace EULA / Terms URL', value: appUrls?.eula ?? '/eula' },
+        { key: 'privacy', label: 'Marketplace Privacy Policy URL', value: appUrls?.privacy ?? '/privacy' },
     ];
 
     const copy = async (key: string, value: string) => {

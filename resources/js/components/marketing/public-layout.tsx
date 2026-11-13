@@ -24,6 +24,8 @@ export interface BitrixAppUrls {
     install: string;
     app: string;
     events: string;
+    eula?: string;
+    privacy?: string;
 }
 
 export function formatMoney(cents: number, currency: string): string {
@@ -197,7 +199,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                     </div>
 
                     <div className="space-y-2.5 text-xs md:col-span-2">
-                        <div className="text-foreground font-semibold">Product</div>
+                        <div className="text-foreground font-semibold">Product &amp; Legal</div>
                         <ul className="text-muted-foreground space-y-1.5">
                             <li>
                                 <Link href="/" className="hover:text-foreground">
@@ -212,6 +214,16 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             <li>
                                 <Link href="/pricing" className="hover:text-foreground">
                                     Pricing &amp; Tiers
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/eula" className="hover:text-foreground">
+                                    EULA (Terms)
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/privacy" className="hover:text-foreground">
+                                    Privacy Policy
                                 </Link>
                             </li>
                         </ul>

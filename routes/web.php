@@ -16,6 +16,8 @@ $bitrixAppUrls = fn () => [
     'install' => url('/bitrix/install'),
     'app' => url('/bitrix/app'),
     'events' => url('/bitrix/events'),
+    'eula' => url('/eula'),
+    'privacy' => url('/privacy'),
 ];
 
 Route::middleware('throttle:public-web')->group(function () use ($bitrixAppUrls) {
@@ -31,6 +33,16 @@ Route::middleware('throttle:public-web')->group(function () use ($bitrixAppUrls)
     Route::get('/pricing', fn () => Inertia::render('landing/pricing', [
         'plans' => Plan::cachedPublicPlans(),
     ]))->name('landing.pricing');
+
+    Route::get('/eula', fn () => Inertia::render('landing/eula', [
+        'app_urls' => $bitrixAppUrls(),
+    ]))->name('landing.eula');
+
+    Route::get('/privacy', fn () => Inertia::render('landing/privacy', [
+        'app_urls' => $bitrixAppUrls(),
+    ]))->name('landing.privacy');
+
+    Route::get('/terms', fn () => redirect()->route('landing.eula'));
 });
 
 Route::middleware(['auth'])->group(function () {
