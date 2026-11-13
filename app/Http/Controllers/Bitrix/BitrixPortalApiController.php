@@ -28,6 +28,13 @@ class BitrixPortalApiController extends Controller
         /** @var Tenant $tenant */
         $tenant = $request->attributes->get('bitrix_tenant');
 
+        if (! in_array($tenant->install_status, [Tenant::INSTALL_INSTALLING, Tenant::INSTALL_ACTIVE], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Portal installation cannot be completed in its current status.',
+            ], 403);
+        }
+
         $tenant->forceFill([
             'install_status' => Tenant::INSTALL_ACTIVE,
             'installed_at' => $tenant->installed_at ?: now(),
@@ -49,6 +56,11 @@ class BitrixPortalApiController extends Controller
     {
         /** @var Tenant $tenant */
         $tenant = $request->attributes->get('bitrix_tenant');
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return response()->json(['success' => false, 'message' => $subEval['reason']], 403);
+        }
+
         $inspectIds = array_values(array_filter(array_map('intval', (array) $request->input('entity_type_ids', []))));
 
         try {
@@ -71,6 +83,10 @@ class BitrixPortalApiController extends Controller
     {
         /** @var Tenant $tenant */
         $tenant = $request->attributes->get('bitrix_tenant');
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return response()->json(['success' => false, 'message' => $subEval['reason']], 403);
+        }
 
         $validated = $request->validate([
             'fee_sync_mode' => ['nullable', 'in:dedicated_spas,consolidated_spas,subtotals_only'],
@@ -112,17 +128,59 @@ class BitrixPortalApiController extends Controller
     {
         /** @var Tenant $tenant */
         $tenant = $request->attributes->get('bitrix_tenant');
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return response()->json(['success' => false, 'message' => $subEval['reason']], 403);
+        }
 
         $validated = $request->validate([
             'fee_sync_mode' => ['required', 'in:dedicated_spas,consolidated_spas,subtotals_only'],
             'catalog' => ['required', 'array'],
-            'options_config' => ['nullable', 'array'],
-            'cost_types_config' => ['nullable', 'array'],
-            'option_meta_schema' => ['nullable', 'array'],
-            'extra_attributes' => ['nullable', 'array'],
-            'spa_buckets' => ['nullable', 'array'],
-            'entities' => ['required', 'array', 'min:1'],
-            'enum_mappings' => ['nullable', 'array'],
+            'catalog.iblock_id' => ['nullable', 'integer', 'min:1'],
+            'catalog.catalog_name' => ['nullable', 'string', 'max:255'],
+            'catalog.cost_type_prop_code' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_]+$/'],
+            'catalog.cost_type_prop_id' => ['nullable', 'integer', 'min:1'],
+            'catalog.option_prop_code' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_]+$/'],
+            'catalog.option_prop_id' => ['nullable', 'integer', 'min:1'],
+            'catalog.payments_prop_code' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_]+$/'],
+            'catalog.payments_prop_id' => ['nullable', 'integer', 'min:1'],
+            'options_config' => ['nullable', 'array', 'max:10'],
+            'cost_types_config' => ['nullable', 'array', 'max:20'],
+            'option_meta_schema' => ['nullable', 'array', 'max:20'],
+            'extra_attributes' => ['nullable', 'array', 'max:30'],
+            'spa_buckets' => ['nullable', 'array', 'max:30'],
+            'spa_buckets.*.bucket_key' => ['nullable', 'string', 'max:64', 'alpha_dash'],
+            'spa_buckets.*.title' => ['nullable', 'string', 'max:120'],
+            'spa_buckets.*.cost_type_key' => ['nullable', 'string', 'max:64'],
+            'spa_buckets.*.option_key' => ['nullable', 'string', 'max:64'],
+            'spa_buckets.*.spa_id' => ['nullable', 'integer', 'min:1'],
+            'spa_buckets.*.spa_entity_type_id' => ['nullable', 'integer', 'min:128'],
+            'spa_buckets.*.is_active' => ['nullable', 'boolean'],
+            'spa_buckets.*.field_map' => ['nullable', 'array'],
+            'spa_buckets.*.field_map.*' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_]+$/'],
+            'entities' => ['required', 'array', 'min:1', 'max:20'],
+            'entities.*.entity_type_id' => ['required', 'integer', 'min:1'],
+            'entities.*.logical_key' => ['nullable', 'string', 'max:64', 'alpha_dash'],
+            'entities.*.title' => ['nullable', 'string', 'max:120'],
+            'entities.*.is_enabled' => ['nullable', 'boolean'],
+            'entities.*.auto_sync_enabled' => ['nullable', 'boolean'],
+            'entities.*.mappings' => ['nullable', 'array', 'max:100'],
+            'entities.*.mappings.*.role' => ['required_with:entities.*.mappings', 'in:subtotal,option_total,spa_link,option_meta,sync_status'],
+            'entities.*.mappings.*.role_qualifier' => ['required_with:entities.*.mappings', 'string', 'max:64'],
+            'entities.*.mappings.*.b24_field_code' => ['required_with:entities.*.mappings', 'string', 'max:64', 'regex:/^[A-Za-z0-9_]+$/'],
+            'entities.*.mappings.*.b24_field_type' => ['nullable', 'string', 'max:32'],
+            'entities.*.mappings.*.b24_settings_json' => ['nullable', 'array'],
+            'enum_mappings' => ['nullable', 'array', 'max:200'],
+            'enum_mappings.*.mapping_group' => ['nullable', 'string', 'max:64'],
+            'enum_mappings.*.attr_key' => ['nullable', 'string', 'max:64'],
+            'enum_mappings.*.logical_key' => ['nullable', 'string', 'max:64'],
+            'enum_mappings.*.logical_label' => ['nullable', 'string', 'max:120'],
+            'enum_mappings.*.catalog_prop_code' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_]+$/'],
+            'enum_mappings.*.catalog_enum_id' => ['nullable', 'string', 'max:64'],
+            'enum_mappings.*.catalog_enum_xml_id' => ['nullable', 'string', 'max:128'],
+            'enum_mappings.*.spa_entity_type_id' => ['nullable', 'integer', 'min:0'],
+            'enum_mappings.*.spa_field_code' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_]+$/'],
+            'enum_mappings.*.spa_enum_id' => ['nullable', 'string', 'max:64'],
         ]);
 
         $result = $this->provisioner->saveCustomMappings($tenant, $validated);
@@ -147,6 +205,9 @@ class BitrixPortalApiController extends Controller
         /** @var Tenant $tenant */
         $tenant = $request->attributes->get('bitrix_tenant');
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return response()->json(['success' => false, 'message' => $subEval['reason']], 403);
+        }
 
         $bindings = $this->syncer->sync(
             $tenant,
@@ -210,7 +271,7 @@ class BitrixPortalApiController extends Controller
             'billing_cycle' => ['nullable', 'in:monthly,yearly'],
         ]);
 
-        $plan = Plan::where('is_active', true)->findOrFail($validated['plan_id']);
+        $plan = Plan::where('is_active', true)->where('is_public', true)->findOrFail($validated['plan_id']);
         $subscription = $this->gate->ensureInitialSubscription($tenant);
 
         $subscription->forceFill([
@@ -226,4 +287,3 @@ class BitrixPortalApiController extends Controller
         ]);
     }
 }
-

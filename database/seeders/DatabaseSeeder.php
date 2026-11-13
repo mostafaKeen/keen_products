@@ -14,24 +14,36 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
         ]);
 
+        $isLocalOrTesting = app()->environment('local', 'testing');
+        $adminEmail = env('SUPER_ADMIN_EMAIL', $isLocalOrTesting ? 'admin@example.com' : '');
+        $adminPassword = (string) env('SUPER_ADMIN_PASSWORD', $isLocalOrTesting ? 'password' : '');
+
+        if ($adminEmail === '' || (! $isLocalOrTesting && ($adminPassword === '' || $adminPassword === 'password'))) {
+            $this->command?->warn('Skipping Super Admin seeding outside local/testing: set non-default SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD.');
+
+            return;
+        }
+
         $admin = User::firstOrCreate(
-            ['email' => env('SUPER_ADMIN_EMAIL', 'admin@example.com')],
+            ['email' => $adminEmail],
             [
                 'name' => env('SUPER_ADMIN_NAME', 'Super Admin'),
-                'password' => Hash::make(env('SUPER_ADMIN_PASSWORD', 'password')),
+                'password' => Hash::make($adminPassword),
                 'email_verified_at' => now(),
             ]
         );
         $admin->is_super_admin = true;
         $admin->save();
 
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
+        if ($isLocalOrTesting) {
+            User::firstOrCreate(
+                ['email' => 'test@example.com'],
+                [
+                    'name' => 'Test User',
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
+        }
     }
 }

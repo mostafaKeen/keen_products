@@ -228,6 +228,61 @@ class TenantSyncService
             return ['success' => false, 'skipped' => true, 'actions' => [], 'errors' => [$err]];
         }
 
+        $reservedUsageId = $this->gate->tryReserveSyncSlot($tenant, $subEval['max_monthly_syncs']);
+        if ($reservedUsageId === null) {
+            $err = 'Monthly sync quota reached. Upgrade your plan to continue syncing.';
+            $this->writeSyncLog($tenant, $entityTypeId, $entityId, $triggerSource, 'blocked', $startTime, [], [$err]);
+
+            return ['success' => false, 'actions' => [], 'errors' => [$err]];
+        }
+
+        $syncCommitted = false;
+
+        try {
+            return $this->executeSyncPipeline(
+                $tenant,
+                $catalogConfig,
+                $entityConfig,
+                $subEval,
+                $entityTypeId,
+                $entityId,
+                $triggerSource,
+                $widgetPayload,
+                $force,
+                $startTime,
+                $actions,
+                $errors,
+                $syncCommitted
+            );
+        } finally {
+            if (! $syncCommitted) {
+                $this->gate->releaseReservedSyncSlot($reservedUsageId);
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $subEval
+     * @param  ?array<string, mixed>  $widgetPayload
+     * @param  list<array<string, mixed>>  $actions
+     * @param  list<string>  $errors
+     * @return array{success: bool, skipped?: bool, actions: list<array<string, mixed>>, errors: list<string>, summary?: array<string, mixed>}
+     */
+    private function executeSyncPipeline(
+        Tenant $tenant,
+        TenantCatalogConfig $catalogConfig,
+        TenantEntityConfig $entityConfig,
+        array $subEval,
+        int $entityTypeId,
+        int $entityId,
+        string $triggerSource,
+        ?array $widgetPayload,
+        bool $force,
+        float $startTime,
+        array &$actions,
+        array &$errors,
+        bool &$syncCommitted,
+    ): array {
         $ownerType = $entityConfig->owner_type_code;
 
         // 1. If triggered by Widget Save, apply product rows & catalog attribute updates atomically first
@@ -267,7 +322,15 @@ class TenantSyncService
             $this->saveProductRows($tenant, $ownerType, $entityId, $productRowsPayload, $actions, $errors);
 
             // Sync modified catalog product attributes back to the Commercial Catalog (preserving valueId)
-            $this->syncCatalogPropertiesFromWidget($tenant, $catalogConfig, $inputRows, $actions, $errors);
+            $this->syncCatalogPropertiesFromWidget(
+                $tenant,
+                $catalogConfig,
+                $inputRows,
+                $actions,
+                $errors,
+                (int) ($subEval['max_options'] ?? 2),
+                (bool) ($subEval['features']['allow_custom_product_attributes'] ?? false)
+            );
         }
 
         // 2. Fetch authoritative entity + product rows + catalog products
@@ -303,8 +366,21 @@ class TenantSyncService
         }
 
         // 3. Bucket calculations (Subtotals, Option Totals, VAT/Opportunity)
-        $optionsConfig = $catalogConfig->resolvedOptionsConfig();
-        $costTypesConfig = $catalogConfig->resolvedCostTypesConfig();
+        $maxOptions = max(1, (int) ($subEval['max_options'] ?? 2));
+        $optionsConfig = array_slice(
+            array_values(array_filter(
+                $catalogConfig->resolvedOptionsConfig(),
+                fn (array $o) => ($o['is_enabled'] ?? true) === true
+            )),
+            0,
+            $maxOptions
+        );
+        $costTypesConfig = array_values(array_filter(
+            $catalogConfig->resolvedCostTypesConfig(),
+            fn (array $c) => ($c['is_enabled'] ?? true) === true
+        ));
+        $allowedOptionKeys = array_map(fn (array $o) => (string) ($o['key'] ?? ''), $optionsConfig);
+        $allowedCostTypeKeys = array_map(fn (array $c) => (string) ($c['key'] ?? ''), $costTypesConfig);
         $activeSpaBuckets = $tenant->spaBuckets()->where('is_active', true)->get();
 
         $bucketSubtotals = [];
@@ -343,10 +419,25 @@ class TenantSyncService
             $optionVal = $this->adapter->extractCatalogPropertyValue($catProd, $catalogConfig->option_prop_code);
             $paymentsVal = $this->adapter->extractCatalogPropertyValue($catProd, $catalogConfig->payments_prop_code);
 
-            $costTypeKey = ($widgetOverride['costTypeKey'] ?? null)
+            $rawWidgetCostType = isset($widgetOverride['costTypeKey']) && in_array((string) $widgetOverride['costTypeKey'], $allowedCostTypeKeys, true)
+                ? (string) $widgetOverride['costTypeKey']
+                : null;
+            $rawWidgetOption = isset($widgetOverride['optionKey']) && in_array((string) $widgetOverride['optionKey'], $allowedOptionKeys, true)
+                ? (string) $widgetOverride['optionKey']
+                : null;
+
+            $costTypeKey = $rawWidgetCostType
                 ?: $this->adapter->resolveLogicalKeyFromCatalogEnum($tenant, 'cost_type', 'cost_type', $costTypeVal);
-            $optionKey = ($widgetOverride['optionKey'] ?? null)
+            if ($costTypeKey !== null && ! in_array($costTypeKey, $allowedCostTypeKeys, true)) {
+                $costTypeKey = null;
+            }
+
+            $optionKey = $rawWidgetOption
                 ?: $this->adapter->resolveLogicalKeyFromCatalogEnum($tenant, 'option_group', 'option_group', $optionVal);
+            if ($optionKey !== null && ! in_array($optionKey, $allowedOptionKeys, true)) {
+                $optionKey = null;
+            }
+
             $paymentKey = ($widgetOverride['paymentKey'] ?? null)
                 ?: $this->adapter->resolveLogicalKeyFromCatalogEnum($tenant, 'payment_schedule', 'payment_schedule', $paymentsVal);
 
@@ -505,9 +596,10 @@ class TenantSyncService
             ]
         );
 
+        $syncCommitted = true;
         $metrics = $this->client->getMetrics();
         $tenant->forceFill(['last_sync_at' => now()])->saveQuietly();
-        $this->gate->incrementUsage($tenant, 1, $metrics['calls'], $triggerSource === 'webhook' ? 1 : 0);
+        $this->gate->incrementUsage($tenant, 0, $metrics['calls'], $triggerSource === 'webhook' ? 1 : 0);
 
         $status = $errors === [] ? 'success' : 'failed';
         $this->writeSyncLog($tenant, $entityTypeId, $entityId, $triggerSource, $status, $startTime, $actions, $errors);
@@ -655,11 +747,26 @@ class TenantSyncService
         array $rows,
         array &$actions,
         array &$errors,
+        int $maxOptions = 2,
+        bool $allowExtraAttributes = true,
     ): void {
         $rowsWithProducts = collect($rows)->filter(fn (array $r) => ! empty($r['productId']) && (int) $r['productId'] > 0)->values()->all();
         if ($rowsWithProducts === []) {
             return;
         }
+
+        $allowedOptionKeys = array_slice(
+            collect($catalogConfig->resolvedOptionsConfig())
+                ->filter(fn (array $o) => ($o['is_enabled'] ?? true) === true)
+                ->pluck('key')
+                ->all(),
+            0,
+            max(1, $maxOptions)
+        );
+        $allowedCostTypeKeys = collect($catalogConfig->resolvedCostTypesConfig())
+            ->filter(fn (array $c) => ($c['is_enabled'] ?? true) === true)
+            ->pluck('key')
+            ->all();
 
         $productIds = array_values(array_unique(array_map(fn ($r) => (int) $r['productId'], $rowsWithProducts)));
         $currentProducts = $this->fetchCatalogProducts($tenant, $catalogConfig, $productIds);
@@ -670,7 +777,7 @@ class TenantSyncService
             $prod = $currentProducts[$pid] ?? null;
             $fields = [];
 
-            if ($catalogConfig->cost_type_prop_code && ! empty($row['costTypeKey'])) {
+            if ($catalogConfig->cost_type_prop_code && ! empty($row['costTypeKey']) && in_array((string) $row['costTypeKey'], $allowedCostTypeKeys, true)) {
                 $enumId = $this->adapter->resolveCatalogEnumIdFromLogicalKey($tenant, 'cost_type', 'cost_type', (string) $row['costTypeKey']);
                 if ($enumId !== null && (string) $this->adapter->extractCatalogPropertyValue($prod, $catalogConfig->cost_type_prop_code) !== (string) $enumId) {
                     $vid = $this->adapter->extractCatalogPropertyValueId($prod, $catalogConfig->cost_type_prop_code);
@@ -678,7 +785,7 @@ class TenantSyncService
                 }
             }
 
-            if ($catalogConfig->option_prop_code && ! empty($row['optionKey'])) {
+            if ($catalogConfig->option_prop_code && ! empty($row['optionKey']) && in_array((string) $row['optionKey'], $allowedOptionKeys, true)) {
                 $enumId = $this->adapter->resolveCatalogEnumIdFromLogicalKey($tenant, 'option_group', 'option_group', (string) $row['optionKey']);
                 if ($enumId !== null && (string) $this->adapter->extractCatalogPropertyValue($prod, $catalogConfig->option_prop_code) !== (string) $enumId) {
                     $vid = $this->adapter->extractCatalogPropertyValueId($prod, $catalogConfig->option_prop_code);
@@ -694,17 +801,19 @@ class TenantSyncService
                 }
             }
 
-            foreach ((array) ($catalogConfig->extra_attributes_json ?? []) as $attr) {
-                $attrKey = $attr['key'] ?? null;
-                $propCode = $attr['prop_code'] ?? null;
-                if (! $attrKey || ! $propCode || ! array_key_exists($attrKey, (array) ($row['extraAttributes'] ?? []))) {
-                    continue;
-                }
-                $newVal = (string) $row['extraAttributes'][$attrKey];
-                $oldVal = (string) ($this->adapter->extractCatalogPropertyValue($prod, $propCode) ?? '');
-                if ($newVal !== $oldVal) {
-                    $vid = $this->adapter->extractCatalogPropertyValueId($prod, $propCode);
-                    $fields[$propCode] = $vid ? ['value' => $newVal, 'valueId' => $vid] : ['value' => $newVal];
+            if ($allowExtraAttributes) {
+                foreach ((array) ($catalogConfig->extra_attributes_json ?? []) as $attr) {
+                    $attrKey = $attr['key'] ?? null;
+                    $propCode = $attr['prop_code'] ?? null;
+                    if (! $attrKey || ! $propCode || ! array_key_exists($attrKey, (array) ($row['extraAttributes'] ?? []))) {
+                        continue;
+                    }
+                    $newVal = (string) $row['extraAttributes'][$attrKey];
+                    $oldVal = (string) ($this->adapter->extractCatalogPropertyValue($prod, $propCode) ?? '');
+                    if ($newVal !== $oldVal) {
+                        $vid = $this->adapter->extractCatalogPropertyValueId($prod, $propCode);
+                        $fields[$propCode] = $vid ? ['value' => $newVal, 'valueId' => $vid] : ['value' => $newVal];
+                    }
                 }
             }
 

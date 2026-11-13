@@ -47,6 +47,11 @@ class BitrixWidgetApiController extends Controller
     {
         /** @var Tenant $tenant */
         $tenant = $request->attributes->get('bitrix_tenant');
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return response()->json(['success' => false, 'message' => $subEval['reason']], 403);
+        }
+
         $catalogConfig = $tenant->catalogConfig;
 
         if (! $catalogConfig || ! $catalogConfig->iblock_id) {
@@ -131,6 +136,20 @@ class BitrixWidgetApiController extends Controller
     {
         /** @var Tenant $tenant */
         $tenant = $request->attributes->get('bitrix_tenant');
+        $claims = (array) $request->attributes->get('bitrix_claims', []);
+
+        if (empty($claims['is_admin'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bitrix24 administrator permission is required to manage Commercial Catalog products.',
+            ], 403);
+        }
+
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return response()->json(['success' => false, 'message' => $subEval['reason']], 403);
+        }
+
         $catalogConfig = $tenant->catalogConfig;
 
         if (! $catalogConfig || ! $catalogConfig->iblock_id) {
@@ -148,12 +167,37 @@ class BitrixWidgetApiController extends Controller
             'extraAttributes' => ['nullable', 'array'],
         ]);
 
+        $allowedOptionKeys = collect($catalogConfig->resolvedOptionsConfig())
+            ->take(max(1, (int) ($subEval['max_options'] ?? 2)))
+            ->pluck('key')
+            ->all();
+        if (! empty($validated['optionKey']) && ! in_array($validated['optionKey'], $allowedOptionKeys, true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected fee option is not enabled on your current plan.',
+            ], 422);
+        }
+
+        $allowedCostTypeKeys = collect($catalogConfig->resolvedCostTypesConfig())->pluck('key')->all();
+        if (! empty($validated['costTypeKey']) && ! in_array($validated['costTypeKey'], $allowedCostTypeKeys, true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected cost type is not configured.',
+            ], 422);
+        }
+
         try {
             $productId = ! empty($validated['id']) ? (int) $validated['id'] : null;
             $existingProd = null;
             if ($productId) {
                 $getRes = $this->client->call($tenant, 'catalog.product.get', ['id' => $productId]);
                 $existingProd = $getRes['result']['product'] ?? null;
+                if (! is_array($existingProd) || (int) ($existingProd['iblockId'] ?? 0) !== (int) $catalogConfig->iblock_id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Catalog product not found in this portal catalog.',
+                    ], 403);
+                }
             }
 
             $fields = [
@@ -195,11 +239,13 @@ class BitrixWidgetApiController extends Controller
                 );
             }
 
-            foreach ((array) ($catalogConfig->extra_attributes_json ?? []) as $attr) {
-                $key = $attr['key'] ?? null;
-                $code = $attr['prop_code'] ?? null;
-                if ($key && $code && isset($validated['extraAttributes'][$key])) {
-                    $assignProp($code, (string) $validated['extraAttributes'][$key]);
+            if (! empty($subEval['features']['allow_custom_product_attributes'])) {
+                foreach ((array) ($catalogConfig->extra_attributes_json ?? []) as $attr) {
+                    $key = $attr['key'] ?? null;
+                    $code = $attr['prop_code'] ?? null;
+                    if ($key && $code && isset($validated['extraAttributes'][$key])) {
+                        $assignProp($code, (string) $validated['extraAttributes'][$key]);
+                    }
                 }
             }
 
@@ -279,6 +325,11 @@ class BitrixWidgetApiController extends Controller
             return response()->json(['success' => false, 'message' => 'Missing CRM entity context.'], 422);
         }
 
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: true);
+        if (! $subEval['allowed']) {
+            return response()->json(['success' => false, 'message' => $subEval['reason']], 403);
+        }
+
         $validated = $request->validate([
             'currencyId' => ['nullable', 'string', 'max:8'],
             'rows' => ['present', 'array'],
@@ -347,4 +398,3 @@ class BitrixWidgetApiController extends Controller
         }
     }
 }
-

@@ -1,7 +1,9 @@
 .DS_Store
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
+/database/*.sqlite
+/database/*.sqlite-journal
 .phpactor.json
 .phpunit.result.cache
 /.fleet

@@ -15,7 +15,7 @@ class BitrixJwtService
         array $extraClaims = [],
     ): string {
         $now = time();
-        $ttl = max(300, (int) config('services.bitrix24.jwt_ttl_seconds', 7200));
+        $ttl = max(300, (int) config('services.bitrix24.jwt_ttl_seconds', 1800));
 
         $payload = array_merge($extraClaims, [
             'iss' => config('app.url'),
@@ -67,7 +67,21 @@ class BitrixJwtService
 
     private function sign(string $signingInput): string
     {
-        $secret = (string) (config('services.bitrix24.jwt_secret') ?: config('app.key'));
+        return $this->base64UrlEncode(hash_hmac('sha256', $signingInput, $this->signingKey(), true));
+    }
+
+    private function signingKey(): string
+    {
+        $secret = (string) config('services.bitrix24.jwt_secret', '');
+
+        if ($secret === '' || $secret === (string) config('app.key')) {
+            if (! app()->environment('local', 'testing')) {
+                throw new \RuntimeException('BITRIX24_JWT_SECRET must be configured with a dedicated secret outside local/testing.');
+            }
+
+            $secret = (string) config('app.key', '');
+        }
+
         if (str_starts_with($secret, 'base64:')) {
             $decoded = base64_decode(substr($secret, 7), true);
             if ($decoded !== false) {
@@ -75,7 +89,7 @@ class BitrixJwtService
             }
         }
 
-        return $this->base64UrlEncode(hash_hmac('sha256', $signingInput, $secret, true));
+        return $secret;
     }
 
     private function base64UrlEncode(string $data): string
@@ -93,4 +107,3 @@ class BitrixJwtService
         return (string) base64_decode(strtr($data, '-_', '+/'));
     }
 }
-

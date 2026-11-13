@@ -6,6 +6,7 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\TenantUsageMonthly;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 
 class SubscriptionGate
@@ -196,29 +197,62 @@ class SubscriptionGate
     {
         $yearMonth = now()->format('Y-m');
 
-        return TenantUsageMonthly::firstOrCreate(
-            ['tenant_id' => $tenant->id, 'year_month' => $yearMonth],
-            ['sync_count' => 0, 'api_calls_count' => 0, 'webhook_count' => 0]
-        );
+        try {
+            return TenantUsageMonthly::firstOrCreate(
+                ['tenant_id' => $tenant->id, 'year_month' => $yearMonth],
+                ['sync_count' => 0, 'api_calls_count' => 0, 'webhook_count' => 0]
+            );
+        } catch (QueryException) {
+            return TenantUsageMonthly::where('tenant_id', $tenant->id)
+                ->where('year_month', $yearMonth)
+                ->firstOrFail();
+        }
+    }
+
+    public function tryReserveSyncSlot(Tenant $tenant, ?int $maxMonthlySyncs): ?int
+    {
+        $usage = $this->currentUsage($tenant);
+
+        $query = TenantUsageMonthly::query()->where('id', $usage->id);
+        if ($maxMonthlySyncs !== null) {
+            $query->where('sync_count', '<', $maxMonthlySyncs);
+        }
+
+        $affected = $query->increment('sync_count', 1, ['updated_at' => now()]);
+
+        return $affected > 0 ? $usage->id : null;
+    }
+
+    public function releaseReservedSyncSlot(int $usageId): void
+    {
+        TenantUsageMonthly::query()
+            ->where('id', $usageId)
+            ->where('sync_count', '>', 0)
+            ->decrement('sync_count', 1, ['updated_at' => now()]);
     }
 
     public function incrementUsage(Tenant $tenant, int $syncs = 1, int $apiCalls = 0, int $webhooks = 0): TenantUsageMonthly
     {
         $usage = $this->currentUsage($tenant);
 
-        if ($syncs > 0 || $apiCalls > 0 || $webhooks > 0) {
+        $deltas = [];
+        if ($syncs > 0) {
+            $deltas['sync_count'] = $syncs;
+        }
+        if ($apiCalls > 0) {
+            $deltas['api_calls_count'] = $apiCalls;
+        }
+        if ($webhooks > 0) {
+            $deltas['webhook_count'] = $webhooks;
+        }
+
+        if ($deltas !== []) {
             TenantUsageMonthly::query()
                 ->where('id', $usage->id)
-                ->update([
-                    'sync_count' => $usage->sync_count + max(0, $syncs),
-                    'api_calls_count' => $usage->api_calls_count + max(0, $apiCalls),
-                    'webhook_count' => $usage->webhook_count + max(0, $webhooks),
-                    'updated_at' => now(),
-                ]);
+                ->incrementEach($deltas, ['updated_at' => now()]);
             $usage->refresh();
         }
 
         return $usage;
     }
 }
-

@@ -12,6 +12,7 @@ use App\Models\TenantSpaBucket;
 use App\Services\Subscriptions\SubscriptionGate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class BitrixSchemaProvisioner
 {
@@ -565,16 +566,19 @@ class BitrixSchemaProvisioner
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
         $maxOptions = (int) ($subEval['max_options'] ?? 2);
         $allowCustomSpas = (bool) ($subEval['features']['allow_custom_spas'] ?? true);
+        $allowCustomAttrs = (bool) ($subEval['features']['allow_custom_product_attributes'] ?? false);
 
         $mode = (string) ($payload['fee_sync_mode'] ?? $tenant->fee_sync_mode ?: Tenant::MODE_DEDICATED_SPAS);
         $catalog = (array) ($payload['catalog'] ?? []);
         $optionsConfig = $this->normalizeOptionsConfig($payload['options_config'] ?? TenantCatalogConfig::defaultOptionsConfig(), $maxOptions);
         $costTypesConfig = $this->normalizeCostTypesConfig($payload['cost_types_config'] ?? TenantCatalogConfig::defaultCostTypesConfig());
         $optionMetaSchema = $this->normalizeMetaSchema($payload['option_meta_schema'] ?? TenantCatalogConfig::defaultOptionMetaSchema());
-        $extraAttributes = (array) ($payload['extra_attributes'] ?? []);
+        $extraAttributes = $allowCustomAttrs ? (array) ($payload['extra_attributes'] ?? []) : [];
         $spaBuckets = (array) ($payload['spa_buckets'] ?? []);
         $entities = (array) ($payload['entities'] ?? []);
         $enumMappings = (array) ($payload['enum_mappings'] ?? []);
+
+        $this->assertPortalOwnsSpaBuckets($tenant, $spaBuckets);
 
         DB::transaction(function () use (
             $tenant,
@@ -700,6 +704,49 @@ class BitrixSchemaProvisioner
             'warnings' => $bindingResult['warnings'] ?? [],
             'bindings' => $bindingResult,
         ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $spaBuckets
+     */
+    private function assertPortalOwnsSpaBuckets(Tenant $tenant, array $spaBuckets): void
+    {
+        $requestedIds = collect($spaBuckets)
+            ->pluck('spa_entity_type_id')
+            ->filter(fn ($id) => ! empty($id) && (int) $id > 0)
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($requestedIds->isEmpty()) {
+            return;
+        }
+
+        $knownIds = collect($tenant->schema_snapshot_json['spas'] ?? [])
+            ->pluck('entityTypeId')
+            ->merge($tenant->spaBuckets()->pluck('spa_entity_type_id'))
+            ->filter()
+            ->map(fn ($id) => (int) $id);
+
+        if ($tenant->access_token_enc) {
+            try {
+                $liveIds = collect($this->listPortalTypes($tenant))
+                    ->pluck('entityTypeId')
+                    ->filter()
+                    ->map(fn ($id) => (int) $id);
+                $knownIds = $knownIds->merge($liveIds);
+            } catch (BitrixApiException) {
+            }
+        }
+
+        $knownIds = $knownIds->unique();
+        $unrecognized = $requestedIds->reject(fn (int $id) => $knownIds->contains($id));
+
+        if ($unrecognized->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'spa_buckets' => 'One or more target SPA entityTypeIds do not belong to this Bitrix24 portal.',
+            ]);
+        }
     }
 
     /**

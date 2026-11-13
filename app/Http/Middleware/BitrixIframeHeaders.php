@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Tenant;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,11 +37,40 @@ class BitrixIframeHeaders
             'https://*.bitrix24.id',
             'https://*.bitrix24.com.tr',
             'https://*.bitrix24.cn',
+            'https://*.bitrix24.uk',
+            'https://*.bitrix24.mx',
+            'https://*.bitrix24.co',
+            'https://*.bitrix24.com.co',
+            'https://*.bitrix24.com.ua',
+            'https://*.bitrix24.com.au',
+            'https://*.bitrix24.nl',
+            'https://*.bitrix24.be',
+            'https://*.bitrix24.ch',
+            'https://*.bitrix24.at',
+            'https://*.bitrix24.se',
+            'https://*.bitrix24.no',
+            'https://*.bitrix24.fi',
+            'https://*.bitrix24.dk',
+            'https://*.bitrix24.pt',
+            'https://*.bitrix24.ro',
+            'https://*.bitrix24.cz',
         ];
 
-        $domain = trim((string) $request->input('DOMAIN', ''));
-        if ($domain !== '' && preg_match('/^[a-z0-9.-]+\.[a-z]{2,}(:\d+)?$/i', $domain)) {
-            $ancestors[] = 'https://'.$domain;
+        $memberId = trim((string) $request->input('member_id', ''));
+        if ($memberId !== '') {
+            $tenant = Tenant::query()
+                ->select(['domain', 'install_status'])
+                ->where('member_id', $memberId)
+                ->first();
+
+            if (
+                $tenant
+                && $tenant->domain !== ''
+                && ! preg_match('/[\s;\r\n]/', $tenant->domain)
+                && ! in_array($tenant->install_status, [Tenant::INSTALL_SUSPENDED, Tenant::INSTALL_UNINSTALLED], true)
+            ) {
+                $ancestors[] = 'https://'.strtolower($tenant->domain);
+            }
         }
 
         $configuredAncestors = trim((string) config('services.bitrix24.allowed_frame_ancestors', ''));

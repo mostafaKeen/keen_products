@@ -122,6 +122,7 @@ interface Props {
     jwt: string | null;
     bx24_script_url?: string;
     placement?: string;
+    can_manage_catalog?: boolean;
     context: WidgetContext | null;
 }
 
@@ -146,7 +147,7 @@ function formatMoney(amount: number, currency: string): string {
     }).format(amount)} ${currency}`;
 }
 
-export default function BitrixWidget({ error: initialError, jwt, bx24_script_url, context: initialContext }: Props) {
+export default function BitrixWidget({ error: initialError, jwt, bx24_script_url, can_manage_catalog = false, context: initialContext }: Props) {
     const [context, setContext] = useState<WidgetContext | null>(initialContext);
     const [rows, setRows] = useState<WidgetRow[]>(() => initialContext?.rows ?? []);
     const [currencyId, setCurrencyId] = useState<string>(() => initialContext?.entity.currency_id ?? 'USD');
@@ -582,10 +583,12 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                                 Catalog
                             </Button>
 
-                            <Button variant="outline" size="sm" onClick={() => openProductModal()} disabled={isBlocked}>
-                                <PackagePlus className="mr-1.5 h-3.5 w-3.5" />
-                                New Product
-                            </Button>
+                            {can_manage_catalog && (
+                                <Button variant="outline" size="sm" onClick={() => openProductModal()} disabled={isBlocked}>
+                                    <PackagePlus className="mr-1.5 h-3.5 w-3.5" />
+                                    New Product
+                                </Button>
+                            )}
 
                             <Button variant="outline" size="sm" onClick={addEmptyRow} disabled={isBlocked}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -911,17 +914,19 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                                                     </td>
                                                     <td className="px-3 py-2 text-right">
                                                         <div className="flex items-center justify-end gap-1">
-                                                            <Button
-                                                                type="button"
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-7 w-7"
-                                                                title="Save / Edit in Catalog"
-                                                                onClick={() => openProductModal(undefined, idx)}
-                                                                disabled={isBlocked}
-                                                            >
-                                                                <Edit3 className="h-3.5 w-3.5" />
-                                                            </Button>
+                                                            {can_manage_catalog && (
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-7 w-7"
+                                                                    title="Save / Edit in Catalog"
+                                                                    onClick={() => openProductModal(undefined, idx)}
+                                                                    disabled={isBlocked}
+                                                                >
+                                                                    <Edit3 className="h-3.5 w-3.5" />
+                                                                </Button>
+                                                            )}
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"
@@ -1025,10 +1030,12 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                         <Button variant="secondary" onClick={() => searchCatalog(catalogQuery)} disabled={catalogLoading}>
                             {catalogLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
                         </Button>
-                        <Button variant="outline" onClick={() => openProductModal()}>
-                            <Plus className="mr-1 h-4 w-4" />
-                            New
-                        </Button>
+                        {can_manage_catalog && (
+                            <Button variant="outline" onClick={() => openProductModal()}>
+                                <Plus className="mr-1 h-4 w-4" />
+                                New
+                            </Button>
+                        )}
                     </div>
 
                     <div className="max-h-80 divide-y overflow-y-auto rounded-md border">
@@ -1057,9 +1064,11 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <Button variant="ghost" size="sm" onClick={() => openProductModal(p, null)}>
-                                            Edit
-                                        </Button>
+                                        {can_manage_catalog && (
+                                            <Button variant="ghost" size="sm" onClick={() => openProductModal(p, null)}>
+                                                Edit
+                                            </Button>
+                                        )}
                                         <Button size="sm" onClick={() => addCatalogProductAsRow(p)}>
                                             Add
                                         </Button>

@@ -17,7 +17,7 @@ class VerifyWidgetJwt
 
     public function handle(Request $request, Closure $next, string ...$allowedScopes): Response
     {
-        $token = $request->bearerToken() ?: (string) $request->input('jwt', '');
+        $token = (string) ($request->bearerToken() ?? '');
 
         if ($token === '') {
             return response()->json([
@@ -60,6 +60,20 @@ class VerifyWidgetJwt
                 'success' => false,
                 'message' => 'Portal tenant not found.',
             ], 404);
+        }
+
+        if ($tenant->install_status === Tenant::INSTALL_SUSPENDED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This Bitrix24 portal account is suspended. Please contact app support.',
+            ], 403);
+        }
+
+        if ($tenant->install_status === Tenant::INSTALL_UNINSTALLED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The application has been uninstalled from this Bitrix24 portal.',
+            ], 403);
         }
 
         $request->attributes->set('bitrix_tenant', $tenant);

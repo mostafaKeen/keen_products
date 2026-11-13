@@ -15,6 +15,10 @@ class Bitrix24Client
 
     private ?float $maxOperating = null;
 
+    public function __construct(
+        private readonly BitrixDomainGuard $domainGuard,
+    ) {}
+
     public function resetMetrics(): void
     {
         $this->callCounter = 0;
@@ -54,12 +58,22 @@ class Bitrix24Client
         $this->respectLeakyBucket($tenant);
 
         $endpoint = $this->buildMethodUrl($tenant, $method);
+        $httpOptions = $this->domainGuard->pinnedHttpOptions($endpoint);
+        if ($httpOptions === null) {
+            throw new BitrixApiException(
+                'UNSAFE_CLIENT_ENDPOINT',
+                'Bitrix24 REST endpoint failed SSRF/DNS safety verification.',
+                403
+            );
+        }
+
         $payload = array_merge($params, ['auth' => $token]);
 
         $this->callCounter++;
 
         /** @var Response $response */
         $response = Http::timeout(25)
+            ->withOptions($httpOptions)
             ->acceptJson()
             ->asJson()
             ->post($endpoint, $payload);
@@ -192,7 +206,16 @@ class Bitrix24Client
                 );
             }
 
-            $response = Http::timeout(20)->get($oauthUrl, [
+            $oauthOptions = $this->domainGuard->pinnedHttpOptions($oauthUrl);
+            if ($oauthOptions === null) {
+                throw new BitrixApiException(
+                    'UNSAFE_OAUTH_ENDPOINT',
+                    'Bitrix24 OAuth endpoint failed SSRF/DNS safety verification.',
+                    500
+                );
+            }
+
+            $response = Http::timeout(20)->withOptions($oauthOptions)->get($oauthUrl, [
                 'grant_type' => 'refresh_token',
                 'client_id' => $clientId,
                 'client_secret' => $clientSecret,
@@ -217,13 +240,19 @@ class Bitrix24Client
             }
 
             $expiresIn = max(60, (int) ($data['expires_in'] ?? 3600));
+            $safeClientEndpoint = ! empty($data['client_endpoint']) && $this->domainGuard->isSafeHttpsUrl((string) $data['client_endpoint'])
+                ? (string) $data['client_endpoint']
+                : $fresh->client_endpoint;
+            $safeServerEndpoint = ! empty($data['server_endpoint']) && $this->domainGuard->isTrustedOauthUrl((string) $data['server_endpoint'], $fresh->domain)
+                ? (string) $data['server_endpoint']
+                : $fresh->server_endpoint;
 
             $fresh->forceFill([
                 'access_token_enc' => $data['access_token'],
                 'refresh_token_enc' => $data['refresh_token'] ?? $refreshToken,
                 'token_expires_at' => now()->addSeconds($expiresIn),
-                'client_endpoint' => $data['client_endpoint'] ?? $fresh->client_endpoint,
-                'server_endpoint' => $data['server_endpoint'] ?? $fresh->server_endpoint,
+                'client_endpoint' => $safeClientEndpoint,
+                'server_endpoint' => $safeServerEndpoint,
             ])->save();
 
             return $fresh;

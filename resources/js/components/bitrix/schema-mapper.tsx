@@ -367,7 +367,10 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
 
     const addOptionSlot = () => {
         if (optionsConfig.length >= maxOptions) return;
-        const n = optionsConfig.length + 1;
+        let n = 1;
+        while (optionsConfig.some((o) => o.key === `option_${n}`)) {
+            n++;
+        }
         setOptionsConfig((prev) => [
             ...prev,
             {
@@ -379,13 +382,32 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
         ]);
     };
 
+    const addCostTypeSlot = () => {
+        let n = 1;
+        while (costTypesConfig.some((c) => c.key === `cost_${n}`)) {
+            n++;
+        }
+        setCostTypesConfig((prev) => [
+            ...prev,
+            {
+                key: `cost_${n}`,
+                label: `Cost Type ${n}`,
+                sort: n * 100,
+                is_enabled: true,
+            },
+        ]);
+    };
+
     const addExtraAttr = () => {
-        const idx = extraAttributes.length + 1;
+        let n = 1;
+        while (extraAttributes.some((a) => a.key === `custom_attr_${n}`)) {
+            n++;
+        }
         setExtraAttributes((prev) => [
             ...prev,
             {
-                key: `custom_attr_${idx}`,
-                label: `Custom Attribute ${idx}`,
+                key: `custom_attr_${n}`,
+                label: `Custom Attribute ${n}`,
                 property_type: 'S',
                 sync_to_spa: true,
             },
@@ -827,23 +849,46 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                                 {optionsConfig.map((opt, idx) => (
                                     <div key={idx} className="flex items-center gap-2">
                                         <Input
+                                            placeholder="Option Label"
                                             value={opt.label}
                                             onChange={(e) =>
                                                 setOptionsConfig((prev) => prev.map((o, i) => (i === idx ? { ...o, label: e.target.value } : o)))
                                             }
-                                            className="h-8 text-xs"
+                                            className="h-8 flex-1 text-xs"
                                         />
-                                        <Badge variant="outline" className="font-mono text-[10px]">
-                                            {opt.key}
-                                        </Badge>
+                                        <Input
+                                            placeholder="key"
+                                            value={opt.key}
+                                            onChange={(e) => {
+                                                const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                                                setOptionsConfig((prev) => prev.map((o, i) => (i === idx ? { ...o, key: sanitized } : o)));
+                                            }}
+                                            className="h-8 w-24 shrink-0 font-mono text-[11px]"
+                                            title="Unique option key (lowercase, alphanumeric and underscores)"
+                                        />
                                         <Checkbox
                                             checked={opt.is_enabled !== false}
                                             onCheckedChange={(chk) =>
                                                 setOptionsConfig((prev) => prev.map((o, i) => (i === idx ? { ...o, is_enabled: Boolean(chk) } : o)))
                                             }
+                                            title="Enable or disable option"
                                         />
+                                        <Button
+                                            type="button"
+                                            size="icon"
+                                            variant="ghost"
+                                            className="text-destructive h-8 w-8 shrink-0 hover:bg-destructive/10"
+                                            onClick={() => setOptionsConfig((prev) => prev.filter((_, i) => i !== idx))}
+                                            disabled={optionsConfig.length <= 1}
+                                            title={optionsConfig.length <= 1 ? 'At least one option is required' : 'Delete option'}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
                                     </div>
                                 ))}
+                                {optionsConfig.length === 0 && (
+                                    <p className="text-muted-foreground py-2 text-center text-xs">No options defined. Click "Add Option" above.</p>
+                                )}
                             </div>
                         </div>
 
@@ -856,18 +901,7 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                                     size="sm"
                                     variant="outline"
                                     className="h-7 text-xs"
-                                    onClick={() => {
-                                        const idx = costTypesConfig.length + 1;
-                                        setCostTypesConfig((prev) => [
-                                            ...prev,
-                                            {
-                                                key: `cost_${idx}`,
-                                                label: `Cost Type ${idx}`,
-                                                sort: idx * 100,
-                                                is_enabled: true,
-                                            },
-                                        ]);
-                                    }}
+                                    onClick={addCostTypeSlot}
                                 >
                                     <Plus className="mr-1 h-3 w-3" />
                                     Add Type
@@ -877,23 +911,46 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                                 {costTypesConfig.map((ct, idx) => (
                                     <div key={idx} className="flex items-center gap-2">
                                         <Input
+                                            placeholder="Cost Type Label"
                                             value={ct.label}
                                             onChange={(e) =>
                                                 setCostTypesConfig((prev) => prev.map((c, i) => (i === idx ? { ...c, label: e.target.value } : c)))
                                             }
-                                            className="h-8 text-xs"
+                                            className="h-8 flex-1 text-xs"
                                         />
-                                        <Badge variant="outline" className="font-mono text-[10px]">
-                                            {ct.key}
-                                        </Badge>
+                                        <Input
+                                            placeholder="key"
+                                            value={ct.key}
+                                            onChange={(e) => {
+                                                const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                                                setCostTypesConfig((prev) => prev.map((c, i) => (i === idx ? { ...c, key: sanitized } : c)));
+                                            }}
+                                            className="h-8 w-24 shrink-0 font-mono text-[11px]"
+                                            title="Unique cost type key (lowercase, alphanumeric and underscores)"
+                                        />
                                         <Checkbox
                                             checked={ct.is_enabled !== false}
                                             onCheckedChange={(chk) =>
                                                 setCostTypesConfig((prev) => prev.map((c, i) => (i === idx ? { ...c, is_enabled: Boolean(chk) } : c)))
                                             }
+                                            title="Enable or disable cost type"
                                         />
+                                        <Button
+                                            type="button"
+                                            size="icon"
+                                            variant="ghost"
+                                            className="text-destructive h-8 w-8 shrink-0 hover:bg-destructive/10"
+                                            onClick={() => setCostTypesConfig((prev) => prev.filter((_, i) => i !== idx))}
+                                            disabled={costTypesConfig.length <= 1}
+                                            title={costTypesConfig.length <= 1 ? 'At least one cost type is required' : 'Delete cost type'}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
                                     </div>
                                 ))}
+                                {costTypesConfig.length === 0 && (
+                                    <p className="text-muted-foreground py-2 text-center text-xs">No cost types defined. Click "Add Type" above.</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -966,7 +1023,10 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                                 variant="outline"
                                 className="h-7 text-xs"
                                 onClick={() => {
-                                    const n = optionMetaSchema.length + 1;
+                                    let n = 1;
+                                    while (optionMetaSchema.some((m) => m.key === `meta_${n}`)) {
+                                        n++;
+                                    }
                                     setOptionMetaSchema((prev) => [...prev, { key: `meta_${n}`, label: `Detail Field ${n}`, type: 'text' }]);
                                 }}
                             >

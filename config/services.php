@@ -41,12 +41,15 @@ return [
         'app_code' => env('BITRIX24_APP_CODE', 'fee_grid_sync'),
         'oauth_url' => env('BITRIX24_OAUTH_URL', 'https://oauth.bitrix.info/oauth/token/'),
         'public_url' => env('BITRIX24_PUBLIC_URL', env('APP_URL', 'http://localhost:8000')),
-        'jwt_secret' => env('BITRIX24_JWT_SECRET', env('APP_KEY')),
-        'jwt_ttl_seconds' => (int) env('BITRIX24_JWT_TTL_SECONDS', 7200),
+        'jwt_secret' => env('BITRIX24_JWT_SECRET', ''),
+        'jwt_ttl_seconds' => (int) env('BITRIX24_JWT_TTL_SECONDS', 1800),
         'default_trial_days' => (int) env('BITRIX24_DEFAULT_TRIAL_DAYS', 14),
         'grace_period_days' => (int) env('BITRIX24_GRACE_PERIOD_DAYS', 7),
         'widget_tab_title' => env('BITRIX24_WIDGET_TAB_TITLE', 'Fee Grid & SPA Sync'),
         'allowed_frame_ancestors' => env('BITRIX24_ALLOWED_FRAME_ANCESTORS', ''),
+        'allow_custom_domains' => (bool) env('BITRIX24_ALLOW_CUSTOM_DOMAINS', false),
+        'allowed_domains' => env('BITRIX24_ALLOWED_DOMAINS', ''),
+        'oauth_allowed_hosts' => ['oauth.bitrix.info', 'oauth.bitrix24.tech'],
     ],
 
 ];

@@ -12,41 +12,26 @@ use App\Models\Plan;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-$publicPlans = fn () => Plan::where('is_active', true)
-    ->where('is_public', true)
-    ->orderBy('sort_order')
-    ->get([
-        'id',
-        'code',
-        'name',
-        'description',
-        'price_monthly_cents',
-        'price_yearly_cents',
-        'currency',
-        'trial_days',
-        'max_monthly_syncs',
-        'max_options',
-        'features_json',
-    ]);
-
 $bitrixAppUrls = fn () => [
     'install' => url('/bitrix/install'),
     'app' => url('/bitrix/app'),
     'events' => url('/bitrix/events'),
 ];
 
-Route::get('/', fn () => Inertia::render('welcome', [
-    'plans' => $publicPlans(),
-    'app_urls' => $bitrixAppUrls(),
-]))->name('home');
+Route::middleware('throttle:public-web')->group(function () use ($bitrixAppUrls) {
+    Route::get('/', fn () => Inertia::render('welcome', [
+        'plans' => Plan::cachedPublicPlans(),
+        'app_urls' => $bitrixAppUrls(),
+    ]))->name('home');
 
-Route::get('/features', fn () => Inertia::render('landing/features', [
-    'app_urls' => $bitrixAppUrls(),
-]))->name('landing.features');
+    Route::get('/features', fn () => Inertia::render('landing/features', [
+        'app_urls' => $bitrixAppUrls(),
+    ]))->name('landing.features');
 
-Route::get('/pricing', fn () => Inertia::render('landing/pricing', [
-    'plans' => $publicPlans(),
-]))->name('landing.pricing');
+    Route::get('/pricing', fn () => Inertia::render('landing/pricing', [
+        'plans' => Plan::cachedPublicPlans(),
+    ]))->name('landing.pricing');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
@@ -96,33 +81,53 @@ Route::middleware(['bitrix.iframe'])
     ->prefix('bitrix')
     ->name('bitrix.')
     ->group(function () {
-        Route::match(['get', 'post'], '/install', [BitrixEntrypointController::class, 'install'])->name('install');
-        Route::match(['get', 'post'], '/app', [BitrixEntrypointController::class, 'app'])->name('app');
-        Route::match(['get', 'post'], '/widget', [BitrixEntrypointController::class, 'widget'])->name('widget');
+        Route::match(['get', 'post'], '/install', [BitrixEntrypointController::class, 'install'])
+            ->middleware('throttle:bitrix-install')
+            ->name('install');
+        Route::match(['get', 'post'], '/app', [BitrixEntrypointController::class, 'app'])
+            ->middleware('throttle:bitrix-iframe')
+            ->name('app');
+        Route::match(['get', 'post'], '/widget', [BitrixEntrypointController::class, 'widget'])
+            ->middleware('throttle:bitrix-iframe')
+            ->name('widget');
     });
 
-Route::post('/bitrix/events', [BitrixEntrypointController::class, 'events'])->name('bitrix.events');
+Route::post('/bitrix/events', [BitrixEntrypointController::class, 'events'])
+    ->middleware('throttle:bitrix-events')
+    ->name('bitrix.events');
 
 /*
 |--------------------------------------------------------------------------
 | Bitrix24 Iframe JSON APIs (Signed Stateless JWT Bearer Auth)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['bitrix.jwt:app,install'])
+Route::middleware(['throttle:bitrix-api-ip', 'bitrix.jwt:app,install'])
     ->prefix('api/bitrix/portal')
     ->name('api.bitrix.portal.')
     ->group(function () {
-        Route::post('/complete-install', [BitrixPortalApiController::class, 'completeInstall'])->name('complete-install');
-        Route::post('/scan-schema', [BitrixPortalApiController::class, 'scanSchema'])->name('scan-schema');
-        Route::post('/provision-auto', [BitrixPortalApiController::class, 'provisionAuto'])->name('provision-auto');
-        Route::post('/save-mappings', [BitrixPortalApiController::class, 'saveMappings'])->name('save-mappings');
-        Route::post('/sync-bindings', [BitrixPortalApiController::class, 'syncBindings'])->name('sync-bindings');
-        Route::post('/backfill', [BitrixPortalApiController::class, 'runBackfill'])->name('backfill');
+        Route::post('/complete-install', [BitrixPortalApiController::class, 'completeInstall'])
+            ->middleware('throttle:bitrix-portal-heavy')
+            ->name('complete-install');
+        Route::post('/scan-schema', [BitrixPortalApiController::class, 'scanSchema'])
+            ->middleware('throttle:bitrix-portal-heavy')
+            ->name('scan-schema');
+        Route::post('/provision-auto', [BitrixPortalApiController::class, 'provisionAuto'])
+            ->middleware('throttle:bitrix-portal-heavy')
+            ->name('provision-auto');
+        Route::post('/save-mappings', [BitrixPortalApiController::class, 'saveMappings'])
+            ->middleware('throttle:bitrix-portal-heavy')
+            ->name('save-mappings');
+        Route::post('/sync-bindings', [BitrixPortalApiController::class, 'syncBindings'])
+            ->middleware('throttle:bitrix-portal-heavy')
+            ->name('sync-bindings');
+        Route::post('/backfill', [BitrixPortalApiController::class, 'runBackfill'])
+            ->middleware('throttle:bitrix-portal-heavy')
+            ->name('backfill');
         Route::get('/logs', [BitrixPortalApiController::class, 'logs'])->name('logs');
         Route::post('/request-upgrade', [BitrixPortalApiController::class, 'requestUpgrade'])->name('request-upgrade');
     });
 
-Route::middleware(['bitrix.jwt:widget'])
+Route::middleware(['throttle:bitrix-api-ip', 'bitrix.jwt:widget', 'throttle:bitrix-widget'])
     ->prefix('api/bitrix/widget')
     ->name('api.bitrix.widget.')
     ->group(function () {
