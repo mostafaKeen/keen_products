@@ -13,6 +13,7 @@ import {
     RefreshCw,
     Save,
     Search,
+    ShieldAlert,
     Trash2,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -500,14 +501,37 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
     };
 
     if (!context) {
+        const isAccessDenied =
+            (feedback?.text ?? '').toLowerCase().includes('access denied') ||
+            (feedback?.text ?? '').toLowerCase().includes('not authorized') ||
+            (feedback?.text ?? '').toLowerCase().includes('license');
+
         return (
-            <div className="min-h-screen bg-slate-50 p-6 dark:bg-slate-950">
-                <Head title="Fee Breakdown Widget" />
-                <Alert variant="destructive" className="mx-auto max-w-2xl">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Widget Context Unavailable</AlertTitle>
-                    <AlertDescription>{feedback?.text || 'Unable to load Bitrix24 CRM record context.'}</AlertDescription>
-                </Alert>
+            <div className="flex min-h-[480px] w-full items-center justify-center bg-slate-50/80 p-6 dark:bg-slate-950">
+                <Head title="Access Restricted — Quoting Widget" />
+                <Card className="mx-auto w-full max-w-lg border-rose-200 bg-white shadow-lg dark:border-rose-900/60 dark:bg-slate-900">
+                    <CardHeader className="text-center pb-3">
+                        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/70 dark:text-rose-400">
+                            <ShieldAlert className="h-8 w-8" />
+                        </div>
+                        <CardTitle className="text-xl font-bold tracking-tight text-rose-700 dark:text-rose-400">
+                            {isAccessDenied ? 'Access Restricted' : 'Widget Unavailable'}
+                        </CardTitle>
+                        <CardDescription className="mt-2 text-sm font-medium text-slate-800 dark:text-slate-200">
+                            {feedback?.text || 'Your Bitrix24 user account is not authorized to access this widget.'}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-1 text-center">
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                            <strong className="block text-slate-900 dark:text-slate-100 font-semibold mb-1">
+                                Need access to this quoting tool?
+                            </strong>
+                            <p>
+                                Please contact your Bitrix24 portal administrator. They can grant your user account a licensed seat from the <strong>Application Settings &gt; User Access &amp; Seat Allocation</strong> menu.
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         );
     }

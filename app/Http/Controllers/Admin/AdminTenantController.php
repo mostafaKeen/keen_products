@@ -261,10 +261,9 @@ class AdminTenantController extends Controller
             'seats_count' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $restrict = (bool) $validated['restrict_users'];
-        $allowed = $restrict
-            ? array_values(array_unique(array_map('intval', $validated['allowed_b24_user_ids'] ?? [])))
-            : null;
+        $submittedIds = array_values(array_unique(array_filter(array_map('intval', $validated['allowed_b24_user_ids'] ?? []))));
+        $restrict = (bool) $validated['restrict_users'] || count($submittedIds) > 0;
+        $allowed = $restrict ? $submittedIds : null;
 
         $tenant->allowed_b24_user_ids = $allowed;
         $tenant->save();

@@ -247,7 +247,9 @@ class BitrixEntrypointController extends Controller
         $b24UserId = $viewer['user_id'] ?? null;
 
         if (! $tenant->isUserAllowed($b24UserId)) {
-            return $this->appErrorResponse("Access denied: Your Bitrix24 user account (#{$b24UserId}) has not been granted access to this application. Please contact your portal administrator.");
+            $userTag = $b24UserId ? " (User ID #{$b24UserId})" : '';
+
+            return $this->appErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted access to this application. Please contact your portal administrator to assign a license seat.");
         }
 
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
@@ -328,7 +330,9 @@ class BitrixEntrypointController extends Controller
 
         $b24UserId = $viewer['user_id'] ?? null;
         if (! $tenant->isUserAllowed($b24UserId)) {
-            return $this->widgetErrorResponse('Access denied: Your Bitrix24 user account is not authorized to access this widget. Please contact your portal administrator.');
+            $userTag = $b24UserId ? " (User ID #{$b24UserId})" : '';
+
+            return $this->widgetErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted a license to use this widget. Please contact your portal administrator to assign a license seat.");
         }
 
         $entityTypeId = $this->resolveEntityTypeIdFromPlacement($placement);
@@ -574,13 +578,35 @@ class BitrixEntrypointController extends Controller
             $profileRes = Http::timeout(10)->withOptions($httpOptions)->asJson()
                 ->post($base.'/profile.json', ['auth' => $authId])
                 ->json();
-            $profile = is_array($profileRes['result'] ?? null) ? $profileRes['result'] : [];
+            $profile = is_array($profileRes['result'] ?? null) ? (array) $profileRes['result'] : [];
+
+            if (empty($profile['ID'])) {
+                try {
+                    $userRes = Http::timeout(10)->withOptions($httpOptions)->asJson()
+                        ->post($base.'/user.current.json', ['auth' => $authId])
+                        ->json();
+                    if (is_array($userRes['result'] ?? null) && ! empty($userRes['result']['ID'])) {
+                        $profile = (array) $userRes['result'];
+                    }
+                } catch (\Throwable) {
+                    // Ignore fallback error
+                }
+            }
+
+            $userId = ! empty($profile['ID']) ? (int) $profile['ID'] : null;
+            if ($userId === null) {
+                $reqId = request()->input('USER_ID') ?? request()->input('auth.user_id');
+                if ($reqId !== null && is_numeric($reqId) && (int) $reqId > 0) {
+                    $userId = (int) $reqId;
+                }
+            }
+
             $fullName = trim(($profile['NAME'] ?? '').' '.($profile['LAST_NAME'] ?? ''));
 
             return [
                 'verified' => true,
                 'is_admin' => (bool) ($adminRes['result'] ?? false),
-                'user_id' => ! empty($profile['ID']) ? (int) $profile['ID'] : null,
+                'user_id' => $userId,
                 'user_name' => $fullName !== '' ? $fullName : ($profile['EMAIL'] ?? null),
             ];
         } catch (\Throwable) {

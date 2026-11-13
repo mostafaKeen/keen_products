@@ -147,10 +147,11 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
         clear_upgrade_request: false as boolean,
     });
 
+    const initialAllowedIds = (tenant.allowed_b24_user_ids ?? []) as number[];
     const allowedUsersForm = useForm({
-        restrict_users: tenant.allowed_b24_user_ids !== null,
-        allowed_b24_user_ids: (tenant.allowed_b24_user_ids ?? []) as number[],
-        seats_count: subscription.seats_count || 1,
+        restrict_users: initialAllowedIds.length > 0 || tenant.allowed_b24_user_ids !== null,
+        allowed_b24_user_ids: initialAllowedIds,
+        seats_count: subscription.seats_count || (initialAllowedIds.length || 1),
     });
 
     const [userSearch, setUserSearch] = useState('');
@@ -187,6 +188,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
         }
         allowedUsersForm.setData({
             ...allowedUsersForm.data,
+            restrict_users: true,
             allowed_b24_user_ids: current,
             seats_count: Math.max(allowedUsersForm.data.seats_count, current.length || 1),
         });
@@ -198,6 +200,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
             const next = [...allowedUsersForm.data.allowed_b24_user_ids, parsed];
             allowedUsersForm.setData({
                 ...allowedUsersForm.data,
+                restrict_users: true,
                 allowed_b24_user_ids: next,
                 seats_count: Math.max(allowedUsersForm.data.seats_count, next.length || 1),
             });
@@ -209,6 +212,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
         const allIds = Array.from(new Set([...allowedUsersForm.data.allowed_b24_user_ids, ...usersList.map((u) => u.id)]));
         allowedUsersForm.setData({
             ...allowedUsersForm.data,
+            restrict_users: true,
             allowed_b24_user_ids: allIds,
             seats_count: Math.max(allowedUsersForm.data.seats_count, allIds.length || 1),
         });
@@ -557,22 +561,42 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                         <form onSubmit={saveAllowedUsers} className="space-y-4">
                             <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4 bg-slate-50 dark:bg-slate-900">
                                 <div className="space-y-0.5">
-                                    <Label className="text-sm font-semibold">Enforce User-Level Access Restriction</Label>
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-sm font-semibold">User Access Policy</Label>
+                                        {allowedUsersForm.data.restrict_users ? (
+                                            <Badge variant="default" className="bg-emerald-600 text-white">
+                                                Enforced (Selected Users Only)
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="secondary">
+                                                Unrestricted (All Portal Users)
+                                            </Badge>
+                                        )}
+                                    </div>
                                     <p className="text-muted-foreground text-xs">
-                                        When enabled, <strong>ONLY selected Bitrix24 users</strong> can access the application and CRM tab widgets. Other users are completely blocked.
+                                        {allowedUsersForm.data.restrict_users
+                                            ? 'Only the checked Bitrix24 users below are licensed to use the quoting app and CRM tab widgets. Unselected users are completely blocked from the widget with a message directing them to contact their administrator.'
+                                            : 'All users on this Bitrix24 portal can access the application and widgets.'}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="checkbox"
-                                        id="restrict_users"
-                                        checked={allowedUsersForm.data.restrict_users}
-                                        onChange={(e) => allowedUsersForm.setData('restrict_users', e.target.checked)}
-                                        className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                                    />
-                                    <Label htmlFor="restrict_users" className="cursor-pointer font-medium text-sm">
-                                        {allowedUsersForm.data.restrict_users ? 'Restricted Mode (Selected Only)' : 'Unrestricted Mode (All Users)'}
-                                    </Label>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={allowedUsersForm.data.restrict_users ? 'default' : 'outline'}
+                                        className={allowedUsersForm.data.restrict_users ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}
+                                        onClick={() => allowedUsersForm.setData('restrict_users', true)}
+                                    >
+                                        Selected Users Only
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={!allowedUsersForm.data.restrict_users ? 'default' : 'outline'}
+                                        onClick={() => allowedUsersForm.setData({ ...allowedUsersForm.data, restrict_users: false, allowed_b24_user_ids: [] })}
+                                    >
+                                        Allow All Users
+                                    </Button>
                                 </div>
                             </div>
 
