@@ -36,4 +36,3 @@ class TenantEnumMapping extends Model
         return $this->belongsTo(Tenant::class);
     }
 }
-

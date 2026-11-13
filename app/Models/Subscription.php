@@ -28,6 +28,7 @@ class Subscription extends Model
     protected $fillable = [
         'tenant_id',
         'plan_id',
+        'seats_count',
         'status',
         'billing_cycle',
         'billing_provider',
@@ -47,6 +48,7 @@ class Subscription extends Model
     protected function casts(): array
     {
         return [
+            'seats_count' => 'integer',
             'trial_ends_at' => 'datetime',
             'current_period_start' => 'datetime',
             'current_period_end' => 'datetime',
@@ -95,6 +97,16 @@ class Subscription extends Model
         }
 
         return max(1, (int) ($this->plan?->max_options ?? 2));
+    }
+
+    public function effectiveSeatsCount(): int
+    {
+        return max(1, (int) ($this->seats_count ?? 1));
+    }
+
+    public function calculateMonthlyPriceCents(): int
+    {
+        return $this->plan?->calculatePriceMonthlyCents($this->effectiveSeatsCount()) ?? 0;
     }
 
     public function effectiveFeature(string $key, bool $default = false): bool

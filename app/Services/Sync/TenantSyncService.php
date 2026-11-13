@@ -14,6 +14,7 @@ use App\Models\TenantSpaBucket;
 use App\Services\Bitrix24\Bitrix24Client;
 use App\Services\Bitrix24\BitrixFieldAdapter;
 use App\Services\Subscriptions\SubscriptionGate;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
@@ -879,6 +880,26 @@ class TenantSyncService
             $linkedIdsByBucket[$bucket->bucket_key] = [];
         }
 
+        $enumMappings = $tenant->enumMappings()->get();
+
+        // High-efficiency batched pre-lookup for unresolved external IDs (eliminates O(R x B) loops)
+        $unresolvedExternalIds = [];
+        foreach ($preparedSpaRows as $prep) {
+            $extId = (string) $prep['external_id'];
+            if (! $existingLinks->has($extId)) {
+                $unresolvedExternalIds[$extId] = true;
+            }
+        }
+
+        $portalFoundMap = [];
+        if ($unresolvedExternalIds !== []) {
+            $portalFoundMap = $this->batchLookupSpaItemsByExternalIds(
+                $tenant,
+                $activeSpaBuckets,
+                array_keys($unresolvedExternalIds)
+            );
+        }
+
         $commands = [];
         $commandMeta = [];
         $activeExternalIds = [];
@@ -890,15 +911,17 @@ class TenantSyncService
             $externalId = (string) $prep['external_id'];
             $activeExternalIds[] = $externalId;
 
-            $spaFields = $this->buildSpaItemPayload($tenant, $catalogConfig, $bucket, $prep, $currencyId);
+            $spaFields = $this->buildSpaItemPayload($tenant, $catalogConfig, $bucket, $prep, $currencyId, $enumMappings);
+            $payloadHash = hash('sha256', json_encode($spaFields, JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION));
 
-            // Check O(1) DB link record first, otherwise fall back to xmlId search on portal
+            // Check O(1) DB link record first, then batch lookup map, then fallback to xmlId search on portal
             $dbLink = $existingLinks->get($externalId);
             $existingSpaTypeId = $dbLink ? (int) $dbLink->spa_entity_type_id : null;
             $existingItemId = $dbLink ? (int) $dbLink->spa_item_id : null;
 
             if (! $existingItemId) {
-                $found = $this->findSpaItemByXmlIdAcrossBuckets($tenant, $activeSpaBuckets, $externalId);
+                $found = $portalFoundMap[$externalId]
+                    ?? $this->findSpaItemByXmlIdAcrossBuckets($tenant, $activeSpaBuckets, $externalId);
                 if ($found) {
                     $existingSpaTypeId = $found['spa_entity_type_id'];
                     $existingItemId = $found['spa_item_id'];
@@ -906,6 +929,13 @@ class TenantSyncService
             }
 
             if ($existingItemId && $existingSpaTypeId === $targetSpaTypeId) {
+                // Delta sync: If item payload is identical to last recorded hash, skip redundant API update
+                if ($dbLink && $dbLink->payload_hash && hash_equals($dbLink->payload_hash, $payloadHash)) {
+                    $linkedIdsByBucket[$bucket->bucket_key][] = $existingItemId;
+
+                    continue;
+                }
+
                 Cache::put(self::spaSelfWriteCacheKey($tenant->id, $targetSpaTypeId, $existingItemId), true, 15);
                 $cmdKey = "upd_{$idx}";
                 $commands[$cmdKey] = [
@@ -917,7 +947,12 @@ class TenantSyncService
                         'useOriginalUfNames' => 'Y',
                     ],
                 ];
-                $commandMeta[$cmdKey] = ['op' => 'update', 'prep' => $prep, 'existing_id' => $existingItemId];
+                $commandMeta[$cmdKey] = [
+                    'op' => 'update',
+                    'prep' => $prep,
+                    'existing_id' => $existingItemId,
+                    'payload_hash' => $payloadHash,
+                ];
                 $linkedIdsByBucket[$bucket->bucket_key][] = $existingItemId;
             } else {
                 if ($existingItemId && $existingSpaTypeId) {
@@ -943,7 +978,11 @@ class TenantSyncService
                         'useOriginalUfNames' => 'Y',
                     ],
                 ];
-                $commandMeta[$cmdKey] = ['op' => 'add', 'prep' => $prep];
+                $commandMeta[$cmdKey] = [
+                    'op' => 'add',
+                    'prep' => $prep,
+                    'payload_hash' => $payloadHash,
+                ];
             }
         }
 
@@ -984,6 +1023,7 @@ class TenantSyncService
                             'product_id' => $meta['prep']['product_id'] ?: null,
                             'bucket_key' => $bucket->bucket_key,
                             'external_id' => $meta['prep']['external_id'],
+                            'payload_hash' => $meta['payload_hash'] ?? null,
                         ]
                     );
 
@@ -1042,6 +1082,7 @@ class TenantSyncService
         TenantSpaBucket $bucket,
         array $prep,
         string $currencyId,
+        ?Collection $enumMappings = null,
     ): array {
         $spaTypeId = (int) $bucket->spa_entity_type_id;
         $fields = [
@@ -1055,14 +1096,29 @@ class TenantSyncService
             $fields[$qtyField] = $prep['quantity'];
         }
 
+        $resolveEnum = function (string $fieldCode, ?string $logicalKey) use ($tenant, $spaTypeId, $enumMappings): ?string {
+            if (! $logicalKey) {
+                return null;
+            }
+            if ($enumMappings !== null) {
+                return $enumMappings->first(function ($m) use ($spaTypeId, $fieldCode, $logicalKey) {
+                    return (int) $m->spa_entity_type_id === $spaTypeId
+                        && (string) $m->spa_field_code === $fieldCode
+                        && (string) $m->logical_key === $logicalKey;
+                })?->spa_enum_id;
+            }
+
+            return $tenant->enumMappings()
+                ->where('spa_entity_type_id', $spaTypeId)
+                ->where('spa_field_code', $fieldCode)
+                ->where('logical_key', $logicalKey)
+                ->value('spa_enum_id');
+        };
+
         if (($costField = $bucket->resolveFieldCode('cost_type')) && $prep['cost_type_enum_id'] !== null) {
             $fields[$costField] = $this->adapter->mapCatalogEnumToSpaEnum($tenant, $spaTypeId, $costField, $prep['cost_type_enum_id']);
         } elseif (($costField = $bucket->resolveFieldCode('cost_type')) && $prep['cost_type_key']) {
-            $mapped = $tenant->enumMappings()
-                ->where('spa_entity_type_id', $spaTypeId)
-                ->where('spa_field_code', $costField)
-                ->where('logical_key', $prep['cost_type_key'])
-                ->value('spa_enum_id');
+            $mapped = $resolveEnum($costField, $prep['cost_type_key']);
             if ($mapped) {
                 $fields[$costField] = $mapped;
             }
@@ -1071,11 +1127,7 @@ class TenantSyncService
         if (($optField = $bucket->resolveFieldCode('option_group')) && $prep['option_enum_id'] !== null) {
             $fields[$optField] = $this->adapter->mapCatalogEnumToSpaEnum($tenant, $spaTypeId, $optField, $prep['option_enum_id']);
         } elseif (($optField = $bucket->resolveFieldCode('option_group')) && $prep['option_key']) {
-            $mapped = $tenant->enumMappings()
-                ->where('spa_entity_type_id', $spaTypeId)
-                ->where('spa_field_code', $optField)
-                ->where('logical_key', $prep['option_key'])
-                ->value('spa_enum_id');
+            $mapped = $resolveEnum($optField, $prep['option_key']);
             if ($mapped) {
                 $fields[$optField] = $mapped;
             }
@@ -1084,11 +1136,7 @@ class TenantSyncService
         if (($payField = $bucket->resolveFieldCode('payment_schedule')) && $prep['payment_enum_id'] !== null) {
             $fields[$payField] = $this->adapter->mapCatalogEnumToSpaEnum($tenant, $spaTypeId, $payField, $prep['payment_enum_id']);
         } elseif (($payField = $bucket->resolveFieldCode('payment_schedule')) && $prep['payment_key']) {
-            $mapped = $tenant->enumMappings()
-                ->where('spa_entity_type_id', $spaTypeId)
-                ->where('spa_field_code', $payField)
-                ->where('logical_key', $prep['payment_key'])
-                ->value('spa_enum_id');
+            $mapped = $resolveEnum($payField, $prep['payment_key']);
             if ($mapped) {
                 $fields[$payField] = $mapped;
             }
@@ -1197,6 +1245,63 @@ class TenantSyncService
             $actions[] = ['action' => 'updated_entity_fields_atomic', 'fieldCount' => count($fields)];
         } catch (BitrixApiException $e) {
             $errors[] = 'Failed updating entity fields: '.$e->getMessage();
+        }
+    }
+
+    /**
+     * Batch lookup unresolved external IDs across active SPA buckets in a single API round-trip.
+     *
+     * @param  list<string>  $externalIds
+     * @return array<string, array{spa_entity_type_id: int, spa_item_id: int}>
+     */
+    private function batchLookupSpaItemsByExternalIds(Tenant $tenant, $buckets, array $externalIds): array
+    {
+        if ($externalIds === []) {
+            return [];
+        }
+
+        $commands = [];
+        foreach ($buckets as $bucket) {
+            if (! $bucket->spa_entity_type_id) {
+                continue;
+            }
+            $spaTypeId = (int) $bucket->spa_entity_type_id;
+            $commands["lk_{$spaTypeId}"] = [
+                'method' => 'crm.item.list',
+                'params' => [
+                    'entityTypeId' => $spaTypeId,
+                    'filter' => ['@xmlId' => $externalIds],
+                    'select' => ['id', 'xmlId'],
+                ],
+            ];
+        }
+
+        if ($commands === []) {
+            return [];
+        }
+
+        try {
+            $batchRes = $this->client->batch($tenant, $commands);
+            $foundMap = [];
+            foreach ($buckets as $bucket) {
+                $spaTypeId = (int) $bucket->spa_entity_type_id;
+                $cmdKey = "lk_{$spaTypeId}";
+                $items = (array) ($batchRes[$cmdKey]['result']['items'] ?? []);
+                foreach ($items as $item) {
+                    $xmlId = (string) ($item['xmlId'] ?? '');
+                    $itemId = (int) ($item['id'] ?? 0);
+                    if ($xmlId !== '' && $itemId > 0 && ! isset($foundMap[$xmlId])) {
+                        $foundMap[$xmlId] = [
+                            'spa_entity_type_id' => $spaTypeId,
+                            'spa_item_id' => $itemId,
+                        ];
+                    }
+                }
+            }
+
+            return $foundMap;
+        } catch (\Throwable) {
+            return [];
         }
     }
 

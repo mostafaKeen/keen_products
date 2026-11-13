@@ -58,6 +58,8 @@ Route::middleware(['auth', 'super_admin'])
         Route::get('/tenants/{tenant}', [AdminTenantController::class, 'show'])->name('tenants.show');
         Route::post('/tenants/{tenant}/probe', [AdminTenantController::class, 'probe'])->name('tenants.probe');
         Route::patch('/tenants/{tenant}/status', [AdminTenantController::class, 'updateStatus'])->name('tenants.status');
+        Route::post('/tenants/{tenant}/fetch-bitrix-users', [AdminTenantController::class, 'fetchBitrixUsers'])->name('tenants.fetch-users');
+        Route::put('/tenants/{tenant}/allowed-users', [AdminTenantController::class, 'updateAllowedUsers'])->name('tenants.allowed-users');
 
         Route::get('/plans', [AdminPlanController::class, 'index'])->name('plans.index');
         Route::post('/plans', [AdminPlanController::class, 'store'])->name('plans.store');
@@ -65,6 +67,8 @@ Route::middleware(['auth', 'super_admin'])
 
         Route::get('/subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::put('/tenants/{tenant}/subscription', [AdminSubscriptionController::class, 'update'])->name('subscriptions.update');
+        Route::post('/tenants/{tenant}/subscription/activate', [AdminSubscriptionController::class, 'activate'])->name('subscriptions.activate');
+        Route::post('/tenants/{tenant}/subscription/deactivate', [AdminSubscriptionController::class, 'deactivate'])->name('subscriptions.deactivate');
         Route::post('/tenants/{tenant}/payments', [AdminSubscriptionController::class, 'recordPayment'])->name('subscriptions.payments.store');
 
         Route::get('/system-health', [AdminSystemHealthController::class, 'index'])->name('system-health.index');

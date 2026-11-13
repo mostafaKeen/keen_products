@@ -74,4 +74,3 @@ class AdminSystemHealthController extends Controller
         return back()->with('success', "Pruned {$deleted} sync log entries older than 90 days.");
     }
 }
-

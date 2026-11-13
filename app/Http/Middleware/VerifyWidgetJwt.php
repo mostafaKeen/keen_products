@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Tenant;
 use App\Services\Bitrix24\BitrixJwtService;
+use App\Services\Subscriptions\SubscriptionGate;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Validation\UnauthorizedException;
@@ -13,6 +14,7 @@ class VerifyWidgetJwt
 {
     public function __construct(
         private readonly BitrixJwtService $jwtService,
+        private readonly SubscriptionGate $gate,
     ) {}
 
     public function handle(Request $request, Closure $next, string ...$allowedScopes): Response
@@ -73,6 +75,22 @@ class VerifyWidgetJwt
             return response()->json([
                 'success' => false,
                 'message' => 'The application has been uninstalled from this Bitrix24 portal.',
+            ], 403);
+        }
+
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return response()->json([
+                'success' => false,
+                'message' => $subEval['reason'] ?? 'Subscription is inactive. Please contact support.',
+            ], 403);
+        }
+
+        $b24UserId = isset($claims['b24_user_id']) ? (int) $claims['b24_user_id'] : null;
+        if (! $tenant->isUserAllowed($b24UserId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied: Your Bitrix24 user account is not authorized to access this application.',
             ], 403);
         }
 

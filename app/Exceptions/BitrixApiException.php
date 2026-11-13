@@ -58,4 +58,3 @@ class BitrixApiException extends RuntimeException
         return $default;
     }
 }
-

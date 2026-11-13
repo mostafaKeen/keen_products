@@ -127,11 +127,15 @@ class AdminTenantController extends Controller
                 'spa_buckets' => $tenant->spaBuckets,
                 'entity_configs' => $tenant->entityConfigs,
                 'enum_mappings_count' => $tenant->enumMappings->count(),
+                'allowed_b24_user_ids' => $tenant->allowed_b24_user_ids,
+                'cached_b24_users' => $tenant->settings_json['cached_b24_users'] ?? [],
                 'payments' => $tenant->payments()->latest('id')->limit(20)->get(),
             ],
             'subscription' => [
                 'id' => $subEval['subscription']->id,
                 'plan_id' => $subEval['subscription']->plan_id,
+                'seats_count' => $subEval['subscription']->effectiveSeatsCount(),
+                'calculated_price_monthly_cents' => $subEval['subscription']->calculateMonthlyPriceCents(),
                 'status' => $subEval['subscription']->status,
                 'billing_cycle' => $subEval['subscription']->billing_cycle,
                 'billing_provider' => $subEval['subscription']->billing_provider,
@@ -199,5 +203,97 @@ class AdminTenantController extends Controller
         ]);
 
         return back()->with('success', "Portal status changed from {$old} to {$validated['install_status']}.");
+    }
+
+    public function fetchBitrixUsers(Request $request, Tenant $tenant): RedirectResponse
+    {
+        try {
+            $res = $this->client->call($tenant, 'user.get', [
+                'sort' => 'LAST_NAME',
+                'order' => 'ASC',
+                'FILTER' => ['ACTIVE' => 'Y'],
+            ]);
+
+            $rawUsers = (array) ($res['result'] ?? []);
+            $users = [];
+            foreach ($rawUsers as $u) {
+                if (empty($u['ID'])) {
+                    continue;
+                }
+                $firstName = trim((string) ($u['NAME'] ?? ''));
+                $lastName = trim((string) ($u['LAST_NAME'] ?? ''));
+                $fullName = trim("{$firstName} {$lastName}");
+                $users[] = [
+                    'id' => (int) $u['ID'],
+                    'name' => $fullName !== '' ? $fullName : ('User #'.$u['ID']),
+                    'email' => (string) ($u['EMAIL'] ?? ''),
+                    'work_position' => (string) ($u['WORK_POSITION'] ?? ''),
+                    'active' => ($u['ACTIVE'] ?? 'Y') === 'Y',
+                ];
+            }
+
+            $settings = $tenant->settings_json ?? [];
+            $settings['cached_b24_users'] = $users;
+            $tenant->settings_json = $settings;
+            $tenant->save();
+
+            AdminAuditLog::create([
+                'user_id' => $request->user()->id,
+                'tenant_id' => $tenant->id,
+                'action' => 'tenant_b24_users_fetched',
+                'details_json' => ['user_count' => count($users)],
+                'ip_address' => $request->ip(),
+                'created_at' => now(),
+            ]);
+
+            return back()->with('success', 'Fetched '.count($users).' Bitrix24 users from portal.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to fetch Bitrix24 users: '.$e->getMessage());
+        }
+    }
+
+    public function updateAllowedUsers(Request $request, Tenant $tenant): RedirectResponse
+    {
+        $validated = $request->validate([
+            'restrict_users' => ['required', 'boolean'],
+            'allowed_b24_user_ids' => ['nullable', 'array'],
+            'allowed_b24_user_ids.*' => ['integer'],
+            'seats_count' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $restrict = (bool) $validated['restrict_users'];
+        $allowed = $restrict
+            ? array_values(array_unique(array_map('intval', $validated['allowed_b24_user_ids'] ?? [])))
+            : null;
+
+        $tenant->allowed_b24_user_ids = $allowed;
+        $tenant->save();
+
+        $sub = $this->gate->ensureInitialSubscription($tenant);
+        $sub->loadMissing('plan');
+
+        $seats = $validated['seats_count'] ?? ($allowed !== null ? max(1, count($allowed)) : null);
+        if ($seats !== null) {
+            $sub->update(['seats_count' => max(1, (int) $seats)]);
+        }
+
+        AdminAuditLog::create([
+            'user_id' => $request->user()->id,
+            'tenant_id' => $tenant->id,
+            'action' => 'tenant_allowed_users_updated',
+            'details_json' => [
+                'restrict_users' => $restrict,
+                'allowed_b24_user_ids' => $allowed,
+                'seats_count' => $sub->seats_count,
+            ],
+            'ip_address' => $request->ip(),
+            'created_at' => now(),
+        ]);
+
+        $message = $restrict
+            ? 'Updated allowed Bitrix24 users ('.count($allowed ?? []).' users assigned to '.$sub->seats_count.' seats).'
+            : 'User restriction disabled. All portal users can now access the application.';
+
+        return back()->with('success', $message);
     }
 }

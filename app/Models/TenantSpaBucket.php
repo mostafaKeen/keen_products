@@ -44,4 +44,3 @@ class TenantSpaBucket extends Model
         return $map[$logicalKey] ?? $default;
     }
 }
-

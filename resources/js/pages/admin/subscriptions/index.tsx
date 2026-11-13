@@ -11,12 +11,13 @@ interface SubscriptionsProps {
         data: Array<{
             id: number;
             tenant_id: number;
+            seats_count?: number;
             status: string;
             billing_cycle: string;
             trial_ends_at: string | null;
             current_period_end: string | null;
             tenant?: { id: number; domain: string; member_id: string; install_status: string };
-            plan?: { id: number; name: string; price_monthly_cents: number; currency: string };
+            plan?: { id: number; name: string; price_monthly_cents: number; currency: string; billing_type?: string; price_per_user_cents?: number };
             upgrade_requested_plan?: { id: number; name: string } | null;
         }>;
     };
@@ -103,10 +104,13 @@ export default function AdminSubscriptionsIndex({ subscriptions, recent_payments
                                             <tr key={s.id}>
                                                 <td className="py-2.5 pr-4 font-medium">{s.tenant?.domain}</td>
                                                 <td className="py-2.5 pr-4">
-                                                    {s.plan?.name} ({s.billing_cycle})
+                                                    <div>{s.plan?.name} ({s.billing_cycle})</div>
+                                                    {s.seats_count && s.seats_count > 1 && (
+                                                        <div className="text-muted-foreground text-xs">{s.seats_count} seats ($5/user)</div>
+                                                    )}
                                                 </td>
                                                 <td className="py-2.5 pr-4">
-                                                    <Badge variant={s.status === 'active' ? 'default' : 'secondary'}>{s.status}</Badge>
+                                                    <Badge variant={s.status === 'active' ? 'default' : s.status === 'suspended' ? 'destructive' : 'secondary'}>{s.status}</Badge>
                                                 </td>
                                                 <td className="py-2.5 pr-4 text-xs">
                                                     {(s.status === 'trialing' ? s.trial_ends_at : s.current_period_end)?.slice(0, 10) ?? '—'}
@@ -118,7 +122,25 @@ export default function AdminSubscriptionsIndex({ subscriptions, recent_payments
                                                         '—'
                                                     )}
                                                 </td>
-                                                <td className="py-2.5 text-right">
+                                                <td className="py-2.5 text-right space-x-1.5 whitespace-nowrap">
+                                                    {s.status === 'active' ? (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="destructive"
+                                                            onClick={() => router.post(`/admin/tenants/${s.tenant_id}/subscription/deactivate`)}
+                                                        >
+                                                            Deactivate
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="default"
+                                                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                                            onClick={() => router.post(`/admin/tenants/${s.tenant_id}/subscription/activate`)}
+                                                        >
+                                                            Activate
+                                                        </Button>
+                                                    )}
                                                     <Button size="sm" variant="outline" asChild>
                                                         <Link href={`/admin/tenants/${s.tenant_id}`}>Manage</Link>
                                                     </Button>

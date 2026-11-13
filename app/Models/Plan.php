@@ -40,6 +40,8 @@ class Plan extends Model
                     'price_monthly_cents',
                     'price_yearly_cents',
                     'currency',
+                    'billing_type',
+                    'price_per_user_cents',
                     'trial_days',
                     'max_monthly_syncs',
                     'max_options',
@@ -55,6 +57,8 @@ class Plan extends Model
         'price_monthly_cents',
         'price_yearly_cents',
         'currency',
+        'billing_type',
+        'price_per_user_cents',
         'trial_days',
         'max_monthly_syncs',
         'max_options',
@@ -69,6 +73,7 @@ class Plan extends Model
         return [
             'price_monthly_cents' => 'integer',
             'price_yearly_cents' => 'integer',
+            'price_per_user_cents' => 'integer',
             'trial_days' => 'integer',
             'max_monthly_syncs' => 'integer',
             'max_options' => 'integer',
@@ -77,6 +82,20 @@ class Plan extends Model
             'is_active' => 'boolean',
             'is_public' => 'boolean',
         ];
+    }
+
+    public function isPerUser(): bool
+    {
+        return ($this->billing_type ?? '') === 'per_user' || ($this->price_per_user_cents !== null && $this->price_per_user_cents > 0);
+    }
+
+    public function calculatePriceMonthlyCents(int $seats = 1): int
+    {
+        if ($this->isPerUser()) {
+            return max(1, $seats) * ($this->price_per_user_cents ?? 500);
+        }
+
+        return (int) ($this->price_monthly_cents ?? 0);
     }
 
     public function subscriptions(): HasMany

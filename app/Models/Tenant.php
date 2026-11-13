@@ -41,6 +41,7 @@ class Tenant extends Model
         'license_type',
         'language_id',
         'installer_b24_user_id',
+        'allowed_b24_user_ids',
         'installer_name',
         'fee_sync_mode',
         'schema_status',
@@ -67,6 +68,7 @@ class Tenant extends Model
             'application_token_enc' => 'encrypted',
             'token_expires_at' => 'datetime',
             'installer_b24_user_id' => 'integer',
+            'allowed_b24_user_ids' => 'array',
             'installed_at' => 'datetime',
             'uninstalled_at' => 'datetime',
             'last_api_call_at' => 'datetime',
@@ -145,6 +147,19 @@ class Tenant extends Model
     public function isEnterprise(): bool
     {
         return strtolower((string) $this->license_family) === 'ent';
+    }
+
+    public function isUserAllowed(?int $b24UserId): bool
+    {
+        if ($this->allowed_b24_user_ids === null) {
+            return true;
+        }
+
+        if ($b24UserId === null) {
+            return false;
+        }
+
+        return in_array((int) $b24UserId, array_map('intval', (array) $this->allowed_b24_user_ids), true);
     }
 
     public function verifyApplicationToken(?string $candidate): bool

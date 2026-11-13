@@ -132,4 +132,3 @@ class BidirectionalSpaSyncService
         return $this->syncService->syncEntity($tenant, $parentEntityTypeId, $parentEntityId, 'spa_reverse', null, true);
     }
 }
-

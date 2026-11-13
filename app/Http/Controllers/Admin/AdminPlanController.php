@@ -65,6 +65,8 @@ class AdminPlanController extends Controller
             'description' => ['nullable', 'string'],
             'price_monthly_cents' => ['required', 'integer', 'min:0'],
             'price_yearly_cents' => ['required', 'integer', 'min:0'],
+            'billing_type' => ['nullable', 'in:fixed,per_user'],
+            'price_per_user_cents' => ['nullable', 'integer', 'min:0'],
             'currency' => ['required', 'string', 'size:3'],
             'trial_days' => ['required', 'integer', 'min:0', 'max:365'],
             'max_monthly_syncs' => ['nullable', 'integer', 'min:1'],
@@ -85,4 +87,3 @@ class AdminPlanController extends Controller
         return $data;
     }
 }
-

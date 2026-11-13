@@ -154,4 +154,108 @@ class AdminDashboardTest extends TestCase
         $this->assertSame(10, $sub->effectiveMaxOptions());
         $this->assertGreaterThanOrEqual(4, AdminAuditLog::where('tenant_id', $tenant->id)->count());
     }
+
+    public function test_admin_portal_activates_deactivates_subscription_and_manages_per_user_seats(): void
+    {
+        $admin = User::factory()->create(['is_super_admin' => true]);
+
+        $perUserPlan = Plan::where('code', 'per_user')->firstOrFail();
+        $this->assertSame('per_user', $perUserPlan->billing_type);
+        $this->assertSame(500, $perUserPlan->price_per_user_cents);
+        $this->assertSame(1500, $perUserPlan->calculatePriceMonthlyCents(3));
+        $this->assertSame(5000, $perUserPlan->calculatePriceMonthlyCents(10));
+
+        $tenant = Tenant::create([
+            'member_id' => 'member_seats_portal',
+            'domain' => 'seats.bitrix24.com',
+            'client_endpoint' => 'https://seats.bitrix24.com/rest/',
+            'server_endpoint' => 'https://oauth.bitrix.info/rest/',
+            'access_token_enc' => 'tok_seats_123',
+            'install_status' => Tenant::INSTALL_ACTIVE,
+            'installer_b24_user_id' => 1,
+        ]);
+
+        $sub = Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $perUserPlan->id,
+            'seats_count' => 1,
+            'status' => Subscription::STATUS_SUSPENDED,
+            'billing_cycle' => 'monthly',
+        ]);
+
+        // 1. Activate subscription via Admin Portal
+        $this->actingAs($admin)
+            ->post("/admin/tenants/{$tenant->id}/subscription/activate")
+            ->assertRedirect();
+
+        $sub->refresh();
+        $this->assertSame(Subscription::STATUS_ACTIVE, $sub->status);
+        $this->assertNotNull($sub->current_period_end);
+        $this->assertTrue($sub->current_period_end->isFuture());
+
+        // 2. Deactivate subscription via Admin Portal
+        $this->actingAs($admin)
+            ->post("/admin/tenants/{$tenant->id}/subscription/deactivate")
+            ->assertRedirect();
+
+        $sub->refresh();
+        $this->assertSame(Subscription::STATUS_SUSPENDED, $sub->status);
+
+        // Reactivate for seat testing
+        $this->actingAs($admin)
+            ->post("/admin/tenants/{$tenant->id}/subscription/activate")
+            ->assertRedirect();
+
+        // 3. Fetch Bitrix24 users from portal API
+        Http::fake([
+            'https://seats.bitrix24.com/rest/user.get*' => Http::response([
+                'result' => [
+                    ['ID' => '1', 'NAME' => 'Alice', 'LAST_NAME' => 'Admin', 'EMAIL' => 'alice@seats.com', 'WORK_POSITION' => 'Owner', 'ACTIVE' => 'Y'],
+                    ['ID' => '25', 'NAME' => 'Bob', 'LAST_NAME' => 'Sales', 'EMAIL' => 'bob@seats.com', 'WORK_POSITION' => 'Sales Rep', 'ACTIVE' => 'Y'],
+                    ['ID' => '99', 'NAME' => 'Charlie', 'LAST_NAME' => 'Excluded', 'EMAIL' => 'charlie@seats.com', 'WORK_POSITION' => 'Viewer', 'ACTIVE' => 'Y'],
+                ],
+            ]),
+        ]);
+
+        $this->actingAs($admin)
+            ->post("/admin/tenants/{$tenant->id}/fetch-bitrix-users")
+            ->assertRedirect();
+
+        $tenant->refresh();
+        $cached = $tenant->settings_json['cached_b24_users'] ?? [];
+        $this->assertCount(3, $cached);
+        $this->assertSame('Alice Admin', $cached[0]['name']);
+
+        // 4. Update allowed users (whitelist users 1 and 25 only)
+        $this->actingAs($admin)
+            ->put("/admin/tenants/{$tenant->id}/allowed-users", [
+                'restrict_users' => true,
+                'allowed_b24_user_ids' => [1, 25],
+                'seats_count' => 2,
+            ])
+            ->assertRedirect();
+
+        $tenant->refresh();
+        $sub->refresh();
+        $this->assertSame([1, 25], $tenant->allowed_b24_user_ids);
+        $this->assertSame(2, $sub->seats_count);
+        $this->assertSame(1000, $sub->calculateMonthlyPriceCents()); // 2 seats * $5.00
+
+        // 5. Test user allowance logic
+        $this->assertTrue($tenant->isUserAllowed(1));
+        $this->assertTrue($tenant->isUserAllowed(25));
+        $this->assertFalse($tenant->isUserAllowed(99));
+        $this->assertFalse($tenant->isUserAllowed(null));
+
+        // 6. Test disable restriction
+        $this->actingAs($admin)
+            ->put("/admin/tenants/{$tenant->id}/allowed-users", [
+                'restrict_users' => false,
+            ])
+            ->assertRedirect();
+
+        $tenant->refresh();
+        $this->assertNull($tenant->allowed_b24_user_ids);
+        $this->assertTrue($tenant->isUserAllowed(99));
+    }
 }

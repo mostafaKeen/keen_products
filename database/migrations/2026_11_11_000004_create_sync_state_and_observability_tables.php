@@ -90,4 +90,3 @@ return new class extends Migration
         Schema::dropIfExists('synced_entity_states');
     }
 };
-

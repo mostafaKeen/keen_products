@@ -102,17 +102,27 @@ class ProcessBitrixEventJob implements ShouldBeUnique, ShouldQueue
                 return;
             }
 
-            $config = $tenant->entityConfigs()
-                ->where('entity_type_id', $this->entityTypeId)
-                ->where('is_enabled', true)
-                ->where('auto_sync_enabled', true)
-                ->first();
-
-            if (! $config) {
+            // Coalesce rapid bursts of concurrent webhooks on the same entity
+            $debounceKey = "b24_sync_debounce:{$this->tenantId}:{$this->entityTypeId}:{$this->entityId}";
+            if (! Cache::add($debounceKey, true, 3)) {
                 return;
             }
 
-            $syncService->syncEntity($tenant, $this->entityTypeId, $this->entityId, 'webhook');
+            try {
+                $config = $tenant->entityConfigs()
+                    ->where('entity_type_id', $this->entityTypeId)
+                    ->where('is_enabled', true)
+                    ->where('auto_sync_enabled', true)
+                    ->first();
+
+                if (! $config) {
+                    return;
+                }
+
+                $syncService->syncEntity($tenant, $this->entityTypeId, $this->entityId, 'webhook');
+            } finally {
+                Cache::forget($debounceKey);
+            }
         } catch (BitrixApiException $e) {
             if ($e->isOperatingLimit() || $e->isRateLimited()) {
                 $this->release($e->retryAfterSeconds());
@@ -130,4 +140,3 @@ class ProcessBitrixEventJob implements ShouldBeUnique, ShouldQueue
         }
     }
 }
-

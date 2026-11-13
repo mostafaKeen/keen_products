@@ -101,4 +101,3 @@ return new class extends Migration
         Schema::dropIfExists('tenant_catalog_configs');
     }
 };
-

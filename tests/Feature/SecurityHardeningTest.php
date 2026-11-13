@@ -1273,4 +1273,109 @@ class SecurityHardeningTest extends TestCase
             $guard->resolveIpsUsing(null);
         }
     }
+
+    public function test_allowed_b24_user_whitelist_and_subscription_deactivation_strictly_enforced(): void
+    {
+        $guard = app(BitrixDomainGuard::class);
+        $guard->resolveIpsUsing(fn (string $host) => ['198.51.100.77']);
+
+        try {
+            $tenant = Tenant::create([
+                'member_id' => 'member_user_whitelist',
+                'domain' => 'whitelist.bitrix24.com',
+                'client_endpoint' => 'https://whitelist.bitrix24.com/rest/',
+                'server_endpoint' => 'https://oauth.bitrix.info/rest/',
+                'access_token_enc' => 'tok_wl',
+                'application_token_enc' => 'sig_wl',
+                'install_status' => Tenant::INSTALL_ACTIVE,
+                'allowed_b24_user_ids' => [42],
+            ]);
+
+            $plan = Plan::where('code', 'pro')->firstOrFail();
+            $sub = Subscription::create([
+                'tenant_id' => $tenant->id,
+                'plan_id' => $plan->id,
+                'status' => Subscription::STATUS_ACTIVE,
+                'billing_cycle' => 'monthly',
+                'current_period_end' => now()->addMonth(),
+            ]);
+
+            TenantCatalogConfig::create([
+                'tenant_id' => $tenant->id,
+                'iblock_id' => 15,
+            ]);
+
+            // Fake Bitrix responses for user 42 (allowed) and user 99 (disallowed)
+            Http::fake([
+                'https://whitelist.bitrix24.com/rest/user.admin.json' => Http::response(['result' => false]),
+                'https://whitelist.bitrix24.com/rest/profile.json' => function ($request) {
+                    $body = $request->data();
+                    $auth = $body['auth'] ?? '';
+                    $id = $auth === 'auth_allowed_42' ? 42 : 99;
+
+                    return Http::response(['result' => ['ID' => $id, 'NAME' => 'User', 'LAST_NAME' => (string) $id]], 200);
+                },
+                'https://whitelist.bitrix24.com/rest/crm.deal.get.json' => Http::response(['result' => ['ID' => 10]], 200),
+                'https://whitelist.bitrix24.com/rest/*' => Http::response(['result' => []], 200),
+            ]);
+
+            // 1. Bitrix App: Allowed user 42 succeeds, disallowed user 99 gets error response
+            $this->post('/bitrix/app', [
+                'member_id' => 'member_user_whitelist',
+                'APPLICATION_TOKEN' => 'sig_wl',
+                'AUTH_ID' => 'auth_allowed_42',
+            ])->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component('bitrix/portal-admin')->where('error', null));
+
+            $this->post('/bitrix/app', [
+                'member_id' => 'member_user_whitelist',
+                'APPLICATION_TOKEN' => 'sig_wl',
+                'AUTH_ID' => 'auth_disallowed_99',
+            ])->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component('bitrix/portal-admin')->whereNot('error', null));
+
+            // 2. Bitrix Widget: Allowed user 42 succeeds, disallowed user 99 gets error response
+            $this->post('/bitrix/widget', [
+                'member_id' => 'member_user_whitelist',
+                'APPLICATION_TOKEN' => 'sig_wl',
+                'AUTH_ID' => 'auth_allowed_42',
+                'PLACEMENT' => 'CRM_DEAL_DETAIL_TAB',
+                'PLACEMENT_OPTIONS' => json_encode(['ID' => 10]),
+            ])->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component('bitrix/widget')->where('error', null));
+
+            $this->post('/bitrix/widget', [
+                'member_id' => 'member_user_whitelist',
+                'APPLICATION_TOKEN' => 'sig_wl',
+                'AUTH_ID' => 'auth_disallowed_99',
+                'PLACEMENT' => 'CRM_DEAL_DETAIL_TAB',
+                'PLACEMENT_OPTIONS' => json_encode(['ID' => 10]),
+            ])->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component('bitrix/widget')->whereNot('error', null));
+
+            // 3. Widget JWT API: Allowed user 42 succeeds, disallowed user 99 gets 403
+            $jwtService = app(BitrixJwtService::class);
+            $jwtAllowed = $jwtService->issueForTenant($tenant, 'widget', 42, false, ['entity_type_id' => 2, 'entity_id' => 10]);
+            $jwtDisallowed = $jwtService->issueForTenant($tenant, 'widget', 99, false, ['entity_type_id' => 2, 'entity_id' => 10]);
+
+            $this->withToken($jwtAllowed)->postJson('/api/bitrix/widget/catalog-search', ['q' => 'test'])->assertOk();
+            $this->withToken($jwtDisallowed)->postJson('/api/bitrix/widget/catalog-search', ['q' => 'test'])->assertForbidden();
+
+            // 4. Subscription Deactivation: Suspend subscription -> even user 42 is blocked
+            $sub->update(['status' => Subscription::STATUS_SUSPENDED]);
+
+            $this->withToken($jwtAllowed)->postJson('/api/bitrix/widget/catalog-search', ['q' => 'test'])->assertForbidden();
+
+            $this->post('/bitrix/widget', [
+                'member_id' => 'member_user_whitelist',
+                'APPLICATION_TOKEN' => 'sig_wl',
+                'AUTH_ID' => 'auth_allowed_42',
+                'PLACEMENT' => 'CRM_DEAL_DETAIL_TAB',
+                'PLACEMENT_OPTIONS' => json_encode(['ID' => 10]),
+            ])->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component('bitrix/widget')->whereNot('error', null));
+        } finally {
+            $guard->resolveIpsUsing(null);
+        }
+    }
 }

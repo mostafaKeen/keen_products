@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Activity, CheckCircle2, CreditCard, RefreshCw, ShieldAlert } from 'lucide-react';
-import { FormEvent } from 'react';
+import { Activity, CheckCircle2, CreditCard, RefreshCw, ShieldAlert, Users, UserCheck, Play, Pause, Plus, Trash2, Search } from 'lucide-react';
+import { FormEvent, useState } from 'react';
 
 interface Plan {
     id: number;
@@ -17,6 +17,16 @@ interface Plan {
     price_monthly_cents: number;
     price_yearly_cents: number;
     currency: string;
+    billing_type?: string;
+    price_per_user_cents?: number | null;
+}
+
+interface BitrixUser {
+    id: number;
+    name: string;
+    email: string;
+    work_position?: string;
+    active?: boolean;
 }
 
 interface TenantShowProps {
@@ -32,6 +42,8 @@ interface TenantShowProps {
         language_id: string;
         installer_name: string | null;
         installer_b24_user_id: number | null;
+        allowed_b24_user_ids: number[] | null;
+        cached_b24_users?: BitrixUser[];
         fee_sync_mode: string;
         schema_status: string;
         installed_at: string | null;
@@ -84,6 +96,8 @@ interface TenantShowProps {
     subscription: {
         id: number;
         plan_id: number;
+        seats_count: number;
+        calculated_price_monthly_cents?: number;
         status: string;
         billing_cycle: string;
         billing_provider: string;
@@ -122,6 +136,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
 
     const subForm = useForm({
         plan_id: subscription.plan_id,
+        seats_count: subscription.seats_count || 1,
         status: subscription.status,
         billing_cycle: subscription.billing_cycle,
         trial_ends_at: subscription.trial_ends_at ? subscription.trial_ends_at.slice(0, 16) : '',
@@ -131,6 +146,80 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
         admin_notes: subscription.admin_notes ?? '',
         clear_upgrade_request: false as boolean,
     });
+
+    const allowedUsersForm = useForm({
+        restrict_users: tenant.allowed_b24_user_ids !== null,
+        allowed_b24_user_ids: (tenant.allowed_b24_user_ids ?? []) as number[],
+        seats_count: subscription.seats_count || 1,
+    });
+
+    const [userSearch, setUserSearch] = useState('');
+    const [manualIdInput, setManualIdInput] = useState('');
+
+    const activateSubscription = () => {
+        router.post(`/admin/tenants/${tenant.id}/subscription/activate`);
+    };
+
+    const deactivateSubscription = () => {
+        router.post(`/admin/tenants/${tenant.id}/subscription/deactivate`);
+    };
+
+    const fetchBitrixUsers = () => {
+        router.post(`/admin/tenants/${tenant.id}/fetch-bitrix-users`);
+    };
+
+    const saveAllowedUsers = (e: FormEvent) => {
+        e.preventDefault();
+        allowedUsersForm.put(`/admin/tenants/${tenant.id}/allowed-users`);
+    };
+
+    const isUserSelected = (id: number) => {
+        return allowedUsersForm.data.allowed_b24_user_ids.includes(id);
+    };
+
+    const toggleUser = (id: number) => {
+        const current = [...allowedUsersForm.data.allowed_b24_user_ids];
+        const idx = current.indexOf(id);
+        if (idx >= 0) {
+            current.splice(idx, 1);
+        } else {
+            current.push(id);
+        }
+        allowedUsersForm.setData({
+            ...allowedUsersForm.data,
+            allowed_b24_user_ids: current,
+            seats_count: Math.max(allowedUsersForm.data.seats_count, current.length || 1),
+        });
+    };
+
+    const addManualUserId = () => {
+        const parsed = parseInt(manualIdInput.trim(), 10);
+        if (!isNaN(parsed) && parsed > 0 && !allowedUsersForm.data.allowed_b24_user_ids.includes(parsed)) {
+            const next = [...allowedUsersForm.data.allowed_b24_user_ids, parsed];
+            allowedUsersForm.setData({
+                ...allowedUsersForm.data,
+                allowed_b24_user_ids: next,
+                seats_count: Math.max(allowedUsersForm.data.seats_count, next.length || 1),
+            });
+            setManualIdInput('');
+        }
+    };
+
+    const selectAllUsers = (usersList: BitrixUser[]) => {
+        const allIds = Array.from(new Set([...allowedUsersForm.data.allowed_b24_user_ids, ...usersList.map((u) => u.id)]));
+        allowedUsersForm.setData({
+            ...allowedUsersForm.data,
+            allowed_b24_user_ids: allIds,
+            seats_count: Math.max(allowedUsersForm.data.seats_count, allIds.length || 1),
+        });
+    };
+
+    const clearAllUsers = () => {
+        allowedUsersForm.setData({
+            ...allowedUsersForm.data,
+            allowed_b24_user_ids: [],
+        });
+    };
 
     const payForm = useForm({
         plan_id: subscription.upgrade_requested_plan?.id ?? subscription.plan_id,
@@ -147,6 +236,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
         e.preventDefault();
         subForm.transform((d) => ({
             ...d,
+            seats_count: Number(d.seats_count || 1),
             trial_ends_at: d.trial_ends_at || null,
             current_period_end: d.current_period_end || null,
             max_monthly_syncs_override: d.max_monthly_syncs_override === '' ? null : Number(d.max_monthly_syncs_override),
@@ -178,6 +268,9 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                         <div className="flex items-center gap-2.5">
                             <h1 className="text-2xl font-semibold tracking-tight">{tenant.domain}</h1>
                             <Badge variant={tenant.install_status === 'active' ? 'default' : 'destructive'}>{tenant.install_status}</Badge>
+                            <Badge variant={subscription.status === 'active' ? 'default' : subscription.status === 'suspended' ? 'destructive' : 'secondary'}>
+                                Sub: {subscription.status}
+                            </Badge>
                             {tenant.license_type && <Badge variant="outline">{tenant.license_type}</Badge>}
                         </div>
                         <p className="text-muted-foreground mt-1 font-mono text-xs">
@@ -186,6 +279,15 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                     </div>
 
                     <div className="flex items-center gap-2">
+                        {subscription.status === 'active' ? (
+                            <Button variant="destructive" onClick={deactivateSubscription}>
+                                <Pause className="mr-1.5 h-4 w-4" /> Deactivate Subscription
+                            </Button>
+                        ) : (
+                            <Button variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={activateSubscription}>
+                                <Play className="mr-1.5 h-4 w-4" /> Activate Subscription
+                            </Button>
+                        )}
                         <Button variant="outline" onClick={() => router.post(`/admin/tenants/${tenant.id}/probe`)}>
                             <RefreshCw className="mr-1.5 h-4 w-4" /> Live Probe (app.info)
                         </Button>
@@ -238,7 +340,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={saveSubscription} className="space-y-4">
-                                <div className="grid grid-cols-3 gap-3">
+                                <div className="grid grid-cols-4 gap-3">
                                     <div>
                                         <Label>Plan</Label>
                                         <select
@@ -252,6 +354,15 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                                                 </option>
                                             ))}
                                         </select>
+                                    </div>
+                                    <div>
+                                        <Label>Seats ($5/ea)</Label>
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            value={subForm.data.seats_count}
+                                            onChange={(e) => subForm.setData('seats_count', Math.max(1, Number(e.target.value)))}
+                                        />
                                     </div>
                                     <div>
                                         <Label>Status</Label>
@@ -430,6 +541,196 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Bitrix24 User Access & Seat Allocation ($5/user) */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base">
+                            <Users className="h-4 w-4" />
+                            Bitrix24 User Access &amp; Seat Allocation ($5/user)
+                        </CardTitle>
+                        <CardDescription>
+                            Control which Bitrix24 portal users are licensed to use this application. When restriction is enabled, unselected users cannot access the app, settings, or CRM widgets.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={saveAllowedUsers} className="space-y-4">
+                            <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4 bg-slate-50 dark:bg-slate-900">
+                                <div className="space-y-0.5">
+                                    <Label className="text-sm font-semibold">Enforce User-Level Access Restriction</Label>
+                                    <p className="text-muted-foreground text-xs">
+                                        When enabled, <strong>ONLY selected Bitrix24 users</strong> can access the application and CRM tab widgets. Other users are completely blocked.
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="restrict_users"
+                                        checked={allowedUsersForm.data.restrict_users}
+                                        onChange={(e) => allowedUsersForm.setData('restrict_users', e.target.checked)}
+                                        className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                    />
+                                    <Label htmlFor="restrict_users" className="cursor-pointer font-medium text-sm">
+                                        {allowedUsersForm.data.restrict_users ? 'Restricted Mode (Selected Only)' : 'Unrestricted Mode (All Users)'}
+                                    </Label>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+                                <div className="flex items-center gap-2">
+                                    <Badge variant={allowedUsersForm.data.restrict_users ? 'default' : 'secondary'} className="text-xs">
+                                        {allowedUsersForm.data.allowed_b24_user_ids.length} User(s) Assigned
+                                    </Badge>
+                                    <Badge variant="outline" className="text-xs">
+                                        {allowedUsersForm.data.seats_count} Seats Licensed
+                                    </Badge>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                        ${(allowedUsersForm.data.seats_count * 5).toFixed(2)} USD / mo ($5/user)
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1.5">
+                                        <Label className="text-xs whitespace-nowrap">Seats Count:</Label>
+                                        <Input
+                                            type="number"
+                                            min={Math.max(1, allowedUsersForm.data.allowed_b24_user_ids.length)}
+                                            value={allowedUsersForm.data.seats_count}
+                                            onChange={(e) => allowedUsersForm.setData('seats_count', Math.max(1, Number(e.target.value)))}
+                                            className="h-8 w-20 text-xs"
+                                        />
+                                    </div>
+                                    <Button type="button" variant="outline" size="sm" onClick={fetchBitrixUsers}>
+                                        <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Fetch Portal Users (user.get)
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                <div className="relative flex-1 min-w-[220px]">
+                                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        type="text"
+                                        placeholder="Filter by name, email, or Bitrix ID..."
+                                        value={userSearch}
+                                        onChange={(e) => setUserSearch(e.target.value)}
+                                        className="pl-8 h-9 text-xs"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        type="number"
+                                        placeholder="Add User ID..."
+                                        value={manualIdInput}
+                                        onChange={(e) => setManualIdInput(e.target.value)}
+                                        className="h-9 w-28 text-xs"
+                                    />
+                                    <Button type="button" size="sm" variant="outline" onClick={addManualUserId}>
+                                        <Plus className="mr-1 h-3.5 w-3.5" /> Add ID
+                                    </Button>
+                                    <Button type="button" size="sm" variant="ghost" onClick={() => selectAllUsers(tenant.cached_b24_users ?? [])}>
+                                        Select All
+                                    </Button>
+                                    <Button type="button" size="sm" variant="ghost" onClick={clearAllUsers}>
+                                        Clear
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* User List */}
+                            <div className="max-h-72 overflow-y-auto rounded-md border divide-y text-xs">
+                                {(() => {
+                                    const cached: BitrixUser[] = tenant.cached_b24_users ?? [];
+                                    const manualList = allowedUsersForm.data.allowed_b24_user_ids
+                                        .filter((id) => !cached.some((u) => u.id === id))
+                                        .map((id) => ({
+                                            id,
+                                            name: `Bitrix User #${id}`,
+                                            email: 'Manually added seat',
+                                            work_position: 'Custom User Seat',
+                                            active: true,
+                                        }));
+                                    const combined = [...cached, ...manualList];
+                                    const filtered = combined.filter((u) => {
+                                        if (!userSearch) return true;
+                                        const q = userSearch.toLowerCase();
+                                        return (
+                                            u.name.toLowerCase().includes(q) ||
+                                            u.email.toLowerCase().includes(q) ||
+                                            String(u.id).includes(q) ||
+                                            (u.work_position && u.work_position.toLowerCase().includes(q))
+                                        );
+                                    });
+
+                                    if (filtered.length === 0) {
+                                        return (
+                                            <div className="p-6 text-center text-muted-foreground">
+                                                {combined.length === 0
+                                                    ? 'No Bitrix24 users loaded yet. Click "Fetch Portal Users" above or enter a user ID manually.'
+                                                    : 'No Bitrix24 users match your filter.'}
+                                            </div>
+                                        );
+                                    }
+
+                                    return filtered.map((u) => {
+                                        const checked = isUserSelected(u.id);
+                                        const isInstaller = tenant.installer_b24_user_id === u.id;
+                                        return (
+                                            <div
+                                                key={u.id}
+                                                onClick={() => toggleUser(u.id)}
+                                                className={`flex items-center justify-between p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors ${
+                                                    checked ? 'bg-emerald-50/70 dark:bg-emerald-950/20' : ''
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={checked}
+                                                        onChange={() => {}}
+                                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                                    />
+                                                    <div>
+                                                        <div className="font-medium flex items-center gap-1.5">
+                                                            <span>{u.name}</span>
+                                                            {isInstaller && (
+                                                                <Badge variant="outline" className="text-[10px] px-1 py-0 border-blue-400 text-blue-600">
+                                                                    Installer
+                                                                </Badge>
+                                                            )}
+                                                            {checked && (
+                                                                <Badge variant="default" className="text-[10px] px-1 py-0 bg-emerald-600">
+                                                                    Allowed
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-muted-foreground text-[11px] flex gap-2">
+                                                            {u.email && <span>{u.email}</span>}
+                                                            {u.work_position && <span>· {u.work_position}</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-mono text-muted-foreground text-[11px]">ID #{u.id}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    });
+                                })()}
+                            </div>
+
+                            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                                <span className="text-xs text-muted-foreground">
+                                    {allowedUsersForm.data.restrict_users
+                                        ? `${allowedUsersForm.data.allowed_b24_user_ids.length} of ${allowedUsersForm.data.seats_count} licensed seats assigned. Other users will be blocked from app and widgets.`
+                                        : 'Restriction disabled: all users in this Bitrix24 portal can access the application.'}
+                                </span>
+                                <Button type="submit" disabled={allowedUsersForm.processing}>
+                                    <UserCheck className="mr-1.5 h-4 w-4" /> Save User Access Permissions
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
 
                 {/* Portal Dynamic Schema Inspector */}
                 <Card>

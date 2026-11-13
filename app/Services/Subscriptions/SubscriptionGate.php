@@ -148,8 +148,14 @@ class SubscriptionGate
             'max_monthly_syncs' => $maxSyncs,
             'remaining_syncs' => $remainingSyncs,
             'max_options' => $maxOptions,
+            'seats_count' => $subscription->effectiveSeatsCount(),
             'features' => $features,
         ];
+    }
+
+    public function checkUserAccess(Tenant $tenant, ?int $b24UserId): bool
+    {
+        return $tenant->isUserAllowed($b24UserId);
     }
 
     public function syncExpirationState(Subscription $subscription): Subscription

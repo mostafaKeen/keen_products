@@ -246,6 +246,10 @@ class BitrixEntrypointController extends Controller
         $isAdmin = (bool) $viewer['is_admin'];
         $b24UserId = $viewer['user_id'] ?? null;
 
+        if (! $tenant->isUserAllowed($b24UserId)) {
+            return $this->appErrorResponse("Access denied: Your Bitrix24 user account (#{$b24UserId}) has not been granted access to this application. Please contact your portal administrator.");
+        }
+
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
         $jwt = $this->jwtService->issueForTenant($tenant, 'app', $b24UserId, $isAdmin);
 
@@ -304,6 +308,11 @@ class BitrixEntrypointController extends Controller
             return $this->widgetErrorResponse('This application is not active on this Bitrix24 portal.');
         }
 
+        $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
+        if (! $subEval['allowed']) {
+            return $this->widgetErrorResponse($subEval['reason'] ?? 'Subscription is inactive. Please contact support.');
+        }
+
         if (! empty($tenant->application_token_enc) && $appToken !== '' && ! $tenant->verifyApplicationToken($appToken)) {
             return $this->widgetErrorResponse('Invalid Bitrix24 application signature.');
         }
@@ -315,6 +324,11 @@ class BitrixEntrypointController extends Controller
         $viewer = $this->probeViewer($tenant->client_endpoint, $authId);
         if (! $viewer['verified']) {
             return $this->widgetErrorResponse('Unable to verify your Bitrix24 session. Open this tab inside Bitrix24.');
+        }
+
+        $b24UserId = $viewer['user_id'] ?? null;
+        if (! $tenant->isUserAllowed($b24UserId)) {
+            return $this->widgetErrorResponse('Access denied: Your Bitrix24 user account is not authorized to access this widget. Please contact your portal administrator.');
         }
 
         $entityTypeId = $this->resolveEntityTypeIdFromPlacement($placement);

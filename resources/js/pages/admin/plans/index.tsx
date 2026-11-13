@@ -17,6 +17,8 @@ interface PlanItem {
     code: string;
     name: string;
     description: string | null;
+    billing_type?: string;
+    price_per_user_cents?: number | null;
     price_monthly_cents: number;
     price_yearly_cents: number;
     currency: string;
@@ -52,6 +54,8 @@ export default function AdminPlansIndex({ plans }: { plans: PlanItem[] }) {
         code: '',
         name: '',
         description: '',
+        billing_type: 'fixed',
+        price_per_user_cents: '' as string | number,
         price_monthly_cents: 4900,
         price_yearly_cents: 49000,
         currency: 'USD',
@@ -82,6 +86,8 @@ export default function AdminPlansIndex({ plans }: { plans: PlanItem[] }) {
             code: p.code,
             name: p.name,
             description: p.description ?? '',
+            billing_type: p.billing_type ?? 'fixed',
+            price_per_user_cents: p.price_per_user_cents ?? '',
             price_monthly_cents: p.price_monthly_cents,
             price_yearly_cents: p.price_yearly_cents,
             currency: p.currency,
@@ -106,6 +112,7 @@ export default function AdminPlansIndex({ plans }: { plans: PlanItem[] }) {
         e.preventDefault();
         const payloadTransform = (data: typeof form.data) => ({
             ...data,
+            price_per_user_cents: data.price_per_user_cents === '' ? null : Number(data.price_per_user_cents),
             max_monthly_syncs: data.max_monthly_syncs === '' ? null : Number(data.max_monthly_syncs),
         });
         form.transform(payloadTransform);
@@ -148,8 +155,17 @@ export default function AdminPlansIndex({ plans }: { plans: PlanItem[] }) {
                             <CardContent className="space-y-4">
                                 <div>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(p.price_monthly_cents, p.currency)}
-                                        <span className="text-muted-foreground text-xs font-normal">/mo</span>
+                                        {p.billing_type === 'per_user' || (p.price_per_user_cents && p.price_per_user_cents > 0) ? (
+                                            <>
+                                                {formatMoney(p.price_per_user_cents ?? 500, p.currency)}
+                                                <span className="text-muted-foreground text-xs font-normal">/user/mo</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {formatMoney(p.price_monthly_cents, p.currency)}
+                                                <span className="text-muted-foreground text-xs font-normal">/mo</span>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="text-muted-foreground text-xs">
                                         {formatMoney(p.price_yearly_cents, p.currency)}/yr · {p.trial_days}d trial
@@ -202,6 +218,29 @@ export default function AdminPlansIndex({ plans }: { plans: PlanItem[] }) {
                             <div>
                                 <Label>Description</Label>
                                 <Input value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <Label>Billing Type</Label>
+                                    <select
+                                        value={form.data.billing_type}
+                                        onChange={(e) => form.setData('billing_type', e.target.value)}
+                                        className="border-input bg-background mt-1 h-9 w-full rounded-md border px-2 text-sm"
+                                    >
+                                        <option value="fixed">Fixed Tier Price</option>
+                                        <option value="per_user">Per User ($5/user)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <Label>Price Per User (cents)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="500 ($5.00)"
+                                        value={form.data.price_per_user_cents}
+                                        onChange={(e) => form.setData('price_per_user_cents', e.target.value)}
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-3 gap-3">

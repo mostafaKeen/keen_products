@@ -17,6 +17,7 @@ class SyncedSpaLink extends Model
         'spa_entity_type_id',
         'spa_item_id',
         'external_id',
+        'payload_hash',
     ];
 
     protected function casts(): array
@@ -36,4 +37,3 @@ class SyncedSpaLink extends Model
         return $this->belongsTo(Tenant::class);
     }
 }
-

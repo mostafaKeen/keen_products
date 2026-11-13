@@ -51,10 +51,71 @@ class AdminSubscriptionController extends Controller
         ]);
     }
 
+    public function activate(Request $request, Tenant $tenant): RedirectResponse
+    {
+        $subscription = $this->gate->ensureInitialSubscription($tenant);
+
+        $now = now();
+        $currentEnd = $subscription->current_period_end;
+        if ($currentEnd === null || $currentEnd->isPast()) {
+            $currentEnd = match ($subscription->billing_cycle) {
+                'yearly' => $now->copy()->addYear(),
+                default => $now->copy()->addMonth(),
+            };
+        }
+
+        $subscription->update([
+            'status' => Subscription::STATUS_ACTIVE,
+            'current_period_start' => $now,
+            'current_period_end' => $currentEnd,
+            'grace_ends_at' => null,
+            'canceled_at' => null,
+            'upgrade_requested_plan_id' => null,
+            'upgrade_requested_at' => null,
+        ]);
+
+        AdminAuditLog::create([
+            'user_id' => $request->user()->id,
+            'tenant_id' => $tenant->id,
+            'action' => 'subscription_activated',
+            'details_json' => [
+                'status' => Subscription::STATUS_ACTIVE,
+                'current_period_end' => $currentEnd->toIso8601String(),
+            ],
+            'ip_address' => $request->ip(),
+            'created_at' => now(),
+        ]);
+
+        return back()->with('success', "Subscription for {$tenant->domain} has been activated.");
+    }
+
+    public function deactivate(Request $request, Tenant $tenant): RedirectResponse
+    {
+        $subscription = $this->gate->ensureInitialSubscription($tenant);
+
+        $subscription->update([
+            'status' => Subscription::STATUS_SUSPENDED,
+        ]);
+
+        AdminAuditLog::create([
+            'user_id' => $request->user()->id,
+            'tenant_id' => $tenant->id,
+            'action' => 'subscription_deactivated',
+            'details_json' => [
+                'status' => Subscription::STATUS_SUSPENDED,
+            ],
+            'ip_address' => $request->ip(),
+            'created_at' => now(),
+        ]);
+
+        return back()->with('success', "Subscription for {$tenant->domain} has been deactivated (suspended).");
+    }
+
     public function update(Request $request, Tenant $tenant): RedirectResponse
     {
         $validated = $request->validate([
             'plan_id' => ['required', 'exists:plans,id'],
+            'seats_count' => ['nullable', 'integer', 'min:1'],
             'status' => ['required', 'in:trialing,active,grace_period,past_due,suspended,expired,canceled'],
             'billing_cycle' => ['required', 'in:monthly,yearly,manual'],
             'trial_ends_at' => ['nullable', 'date'],
@@ -94,6 +155,10 @@ class AdminSubscriptionController extends Controller
             'custom_limits_json' => $customLimits ?: null,
             'admin_notes' => $validated['admin_notes'] ?? null,
         ];
+
+        if (! empty($validated['seats_count'])) {
+            $updateData['seats_count'] = (int) $validated['seats_count'];
+        }
 
         if (! empty($validated['clear_upgrade_request'])) {
             $updateData['upgrade_requested_plan_id'] = null;

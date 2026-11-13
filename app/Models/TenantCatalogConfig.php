@@ -98,4 +98,3 @@ class TenantCatalogConfig extends Model
         return $this->option_meta_schema_json ?: self::defaultOptionMetaSchema();
     }
 }
-
