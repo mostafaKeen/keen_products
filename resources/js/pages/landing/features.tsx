@@ -58,12 +58,12 @@ export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
                         Technical Deep Dive
                     </Badge>
                     <h1 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-4xl">
-                        Why Adaptive Per-Tenant Schema Mapping Matters in Bitrix24 Marketplace
+                        Why Adaptive Per-Tenant Schema Mapping Matters in Bitrix24 Market
                     </h1>
                     <p className="text-muted-foreground max-w-2xl text-base">
-                        In single-portal scripts, developer constants like <code className="font-mono text-xs">property104</code> or{' '}
+                        In single-account scripts, developer constants like <code className="font-mono text-xs">property104</code> or{' '}
                         <code className="font-mono text-xs">UF_CRM_17238_OPT1</code> are hardcoded. Across hundreds of Cloud &amp; On-Premise
-                        customers, every Bitrix24 portal assigns completely different internal field names and Enum IDs.
+                        customers, every Bitrix24 account assigns completely different internal field names and Enum IDs.
                     </p>
                 </div>
             </section>
@@ -75,7 +75,7 @@ export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
                         <div>
                             <h2 className="text-xl font-bold tracking-tight">Per-Tenant Field &amp; Enum Crosswalk</h2>
                             <p className="text-muted-foreground text-sm">
-                                KEEN Products translates each customer portal&rsquo;s native Bitrix24 identifiers into canonical keys once at
+                                KEEN Products translates each customer account&rsquo;s native Bitrix24 identifiers into canonical keys once at
                                 onboarding.
                             </p>
                         </div>
@@ -90,8 +90,8 @@ export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
                                 <thead className="bg-muted/60 text-muted-foreground border-b">
                                     <tr>
                                         <th className="px-4 py-3 font-semibold">Logical Concept</th>
-                                        <th className="px-4 py-3 font-semibold">Customer Portal A (Cloud)</th>
-                                        <th className="px-4 py-3 font-semibold">Customer Portal B (On-Premise)</th>
+                                        <th className="px-4 py-3 font-semibold">Customer Account A (Cloud)</th>
+                                        <th className="px-4 py-3 font-semibold">Customer Account B (On-Premise)</th>
                                         <th className="px-4 py-3 font-semibold">Canonical Adapter Key</th>
                                     </tr>
                                 </thead>
@@ -179,13 +179,13 @@ export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
                             },
                             {
                                 icon: Sliders,
-                                title: 'Self-Service Portal Console',
-                                desc: 'Portal admins trigger backfill jobs, re-scan schema mappings, toggle sync direction, and upgrade plans inside Bitrix24.',
+                                title: 'Self-Service Account Console',
+                                desc: 'Account admins trigger backfill jobs, re-scan schema mappings, toggle sync direction, and upgrade plans inside Bitrix24.',
                             },
                             {
                                 icon: Cpu,
                                 title: 'Super Admin Operations Deck',
-                                desc: 'SaaS operators inspect global portal health, grant custom plan tiers, adjust billing dates, and track AdminAuditLogs.',
+                                desc: 'SaaS operators inspect global account health, grant custom plan tiers, adjust billing dates, and track AdminAuditLogs.',
                             },
                         ].map((card) => {
                             const Icon = card.icon;

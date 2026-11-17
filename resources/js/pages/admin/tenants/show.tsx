@@ -554,7 +554,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                             Bitrix24 User Access &amp; Seat Allocation ($5/user)
                         </CardTitle>
                         <CardDescription>
-                            Control which Bitrix24 portal users are licensed to use this application. When restriction is enabled, unselected users cannot access the app, settings, or CRM widgets.
+                            Control which Bitrix24 account users are licensed to use this application. When restriction is enabled, unselected users cannot access the app, settings, or CRM widgets.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -569,14 +569,14 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                                             </Badge>
                                         ) : (
                                             <Badge variant="secondary">
-                                                Unrestricted (All Portal Users)
+                                                Unrestricted (All Account Users)
                                             </Badge>
                                         )}
                                     </div>
                                     <p className="text-muted-foreground text-xs">
                                         {allowedUsersForm.data.restrict_users
                                             ? 'Only the checked Bitrix24 users below are licensed to use the quoting app and CRM tab widgets. Unselected users are completely blocked from the widget with a message directing them to contact their administrator.'
-                                            : 'All users on this Bitrix24 portal can access the application and widgets.'}
+                                            : 'All users on this Bitrix24 account can access the application and widgets.'}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -624,7 +624,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                                         />
                                     </div>
                                     <Button type="button" variant="outline" size="sm" onClick={fetchBitrixUsers}>
-                                        <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Fetch Portal Users (user.get)
+                                        <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Fetch Account Users (user.get)
                                     </Button>
                                 </div>
                             </div>
@@ -689,7 +689,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                                         return (
                                             <div className="p-6 text-center text-muted-foreground">
                                                 {combined.length === 0
-                                                    ? 'No Bitrix24 users loaded yet. Click "Fetch Portal Users" above or enter a user ID manually.'
+                                                    ? 'No Bitrix24 users loaded yet. Click "Fetch Account Users" above or enter a user ID manually.'
                                                     : 'No Bitrix24 users match your filter.'}
                                             </div>
                                         );
@@ -746,7 +746,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                                 <span className="text-xs text-muted-foreground">
                                     {allowedUsersForm.data.restrict_users
                                         ? `${allowedUsersForm.data.allowed_b24_user_ids.length} of ${allowedUsersForm.data.seats_count} licensed seats assigned. Other users will be blocked from app and widgets.`
-                                        : 'Restriction disabled: all users in this Bitrix24 portal can access the application.'}
+                                        : 'Restriction disabled: all users in this Bitrix24 account can access the application.'}
                                 </span>
                                 <Button type="submit" disabled={allowedUsersForm.processing}>
                                     <UserCheck className="mr-1.5 h-4 w-4" /> Save User Access Permissions
@@ -759,7 +759,7 @@ export default function AdminTenantShow({ tenant, subscription, usage_history, s
                 {/* Portal Dynamic Schema Inspector */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Dynamic Portal Schema &amp; Custom Field Mappings</CardTitle>
+                        <CardTitle className="text-base">Dynamic Account Schema &amp; Custom Field Mappings</CardTitle>
                         <CardDescription>
                             Mode: <strong>{tenant.fee_sync_mode}</strong> · Schema status: <strong>{tenant.schema_status}</strong> · Enum crosswalk
                             entries: <strong>{tenant.enum_mappings_count}</strong> · OAuth stored: <strong>{tenant.has_tokens ? 'Yes' : 'No'}</strong>

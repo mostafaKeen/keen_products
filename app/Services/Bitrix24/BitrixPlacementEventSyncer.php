@@ -20,14 +20,53 @@ class BitrixPlacementEventSyncer
     public function sync(Tenant $tenant, bool $includeAutoSyncEvents = true): array
     {
         $publicBase = rtrim((string) (config('services.bitrix24.public_url') ?: config('app.url')), '/');
+        if (! app()->environment('testing') && str_starts_with($publicBase, 'http://')) {
+            $publicBase = 'https://'.substr($publicBase, 7);
+        }
         $widgetHandlerUrl = $publicBase.'/bitrix/widget';
         $eventHandlerUrl = $publicBase.'/bitrix/events';
-        $tabTitle = (string) config('services.bitrix24.widget_tab_title', 'Fee Grid & SPA Sync');
+        $tabTitle = (string) config('services.bitrix24.widget_tab_title', 'KEEN Products');
 
         $warnings = [];
         $placementsBound = [];
         $placementsUnbound = [];
         $eventsBound = [];
+
+        // Ensure default CRM tabs (Deals, Leads, Quotes) exist for fresh tenants
+        if ($tenant->entityConfigs()->count() === 0) {
+            $defaultConfigs = [
+                [
+                    'logical_key' => 'deal',
+                    'title' => 'Deals',
+                    'entity_type_id' => 2,
+                    'owner_type_code' => 'D',
+                    'placement_code' => 'CRM_DEAL_DETAIL_TAB',
+                    'is_enabled' => true,
+                    'auto_sync_enabled' => true,
+                ],
+                [
+                    'logical_key' => 'lead',
+                    'title' => 'Leads',
+                    'entity_type_id' => 1,
+                    'owner_type_code' => 'L',
+                    'placement_code' => 'CRM_LEAD_DETAIL_TAB',
+                    'is_enabled' => true,
+                    'auto_sync_enabled' => true,
+                ],
+                [
+                    'logical_key' => 'quote',
+                    'title' => 'Quotes',
+                    'entity_type_id' => 7,
+                    'owner_type_code' => 'Q',
+                    'placement_code' => 'CRM_QUOTE_DETAIL_TAB',
+                    'is_enabled' => true,
+                    'auto_sync_enabled' => true,
+                ],
+            ];
+            foreach ($defaultConfigs as $def) {
+                $tenant->entityConfigs()->create($def);
+            }
+        }
 
         $existingPlacements = $this->fetchExistingPlacements($tenant, $warnings);
 
@@ -40,6 +79,20 @@ class BitrixPlacementEventSyncer
         }
 
         foreach ($desiredPlacements as $placementCode => $config) {
+            // Clean up any stale/outdated handler URL for this placement first
+            foreach ($existingPlacements as $existing) {
+                if (($existing['placement'] ?? '') === $placementCode && ($existing['handler'] ?? '') !== $widgetHandlerUrl) {
+                    try {
+                        $this->client->call($tenant, 'placement.unbind', [
+                            'PLACEMENT' => $placementCode,
+                            'HANDLER' => (string) $existing['handler'],
+                        ]);
+                    } catch (\Throwable) {
+                        // Suppress if already removed or inaccessible
+                    }
+                }
+            }
+
             $alreadyBoundSame = collect($existingPlacements)->contains(function (array $p) use ($placementCode, $widgetHandlerUrl) {
                 return ($p['placement'] ?? '') === $placementCode && ($p['handler'] ?? '') === $widgetHandlerUrl;
             });
@@ -50,7 +103,7 @@ class BitrixPlacementEventSyncer
                         'PLACEMENT' => $placementCode,
                         'HANDLER' => $widgetHandlerUrl,
                         'TITLE' => $tabTitle,
-                        'DESCRIPTION' => 'Multi-option fee calculator & SPA synchronizer',
+                        'DESCRIPTION' => 'KEEN Products - Multi-option fee calculator & CRM synchronizer',
                     ]);
                     $placementsBound[] = $placementCode;
                 } catch (BitrixApiException $e) {

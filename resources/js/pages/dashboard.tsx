@@ -32,9 +32,9 @@ export default function Dashboard() {
                             <ShieldAlert className="h-4 w-4" />
                             <AlertTitle>Standard User Account</AlertTitle>
                             <AlertDescription>
-                                Your account does not currently have Super Admin permissions. SaaS portal oversight, subscription billing, and system
-                                diagnostics are restricted to Super Administrators. If you manage a Bitrix24 CRM portal, open the application directly
-                                inside your Bitrix24 portal menu.
+                                Your account does not currently have Super Admin permissions. SaaS account oversight, subscription billing, and system
+                                diagnostics are restricted to Super Administrators. If you manage a Bitrix24 CRM account, open the application directly
+                                inside your Bitrix24 account menu.
                             </AlertDescription>
                         </Alert>
 
@@ -46,12 +46,12 @@ export default function Dashboard() {
                                 Account Settings
                             </Link>
                             <Link href="/" className="hover:bg-muted inline-flex items-center rounded-md border px-3 py-1.5 font-medium">
-                                Marketplace Setup Overview
+                                Bitrix24 Market Setup Overview
                             </Link>
                         </div>
 
                         <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-                            <span>Need help or have questions about your portal integration? Contact us at </span>
+                            <span>Need help or have questions about your account integration? Contact us at </span>
                             <a
                                 href="mailto:apps@keenenter.com"
                                 className="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:underline dark:text-indigo-400"

@@ -133,7 +133,7 @@ export default function AdminPlansIndex({ plans }: { plans: PlanItem[] }) {
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight">Subscription Plans &amp; Quotas</h1>
                         <p className="text-muted-foreground text-sm">
-                            Configure pricing, sync quotas, option limits, and feature entitlements for Marketplace tenants.
+                            Configure pricing, sync quotas, option limits, and feature entitlements for Market tenants.
                         </p>
                     </div>
                     <Button onClick={openCreate}>

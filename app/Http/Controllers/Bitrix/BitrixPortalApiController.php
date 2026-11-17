@@ -31,7 +31,7 @@ class BitrixPortalApiController extends Controller
         if (! in_array($tenant->install_status, [Tenant::INSTALL_INSTALLING, Tenant::INSTALL_ACTIVE], true)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Portal installation cannot be completed in its current status.',
+                'message' => 'Account installation cannot be completed in its current status.',
             ], 403);
         }
 

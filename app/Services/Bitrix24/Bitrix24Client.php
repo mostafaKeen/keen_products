@@ -71,8 +71,10 @@ class Bitrix24Client
 
         $this->callCounter++;
 
+        $timeout = app()->environment('testing') ? 1 : 25;
+
         /** @var Response $response */
-        $response = Http::timeout(25)
+        $response = Http::timeout($timeout)
             ->withOptions($httpOptions)
             ->acceptJson()
             ->asJson()

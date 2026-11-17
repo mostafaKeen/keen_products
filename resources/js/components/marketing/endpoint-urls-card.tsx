@@ -11,8 +11,8 @@ export function EndpointUrlsCard({ appUrls }: { appUrls?: BitrixAppUrls }) {
         { key: 'install', label: 'Install Handler URL', value: appUrls?.install ?? '/bitrix/install' },
         { key: 'app', label: 'Application Handler URL (PLACEMENT)', value: appUrls?.app ?? '/bitrix/app' },
         { key: 'events', label: 'Event Webhook URL', value: appUrls?.events ?? '/bitrix/events' },
-        { key: 'eula', label: 'Marketplace EULA / Terms URL', value: appUrls?.eula ?? '/eula' },
-        { key: 'privacy', label: 'Marketplace Privacy Policy URL', value: appUrls?.privacy ?? '/privacy' },
+        { key: 'eula', label: 'Bitrix24 Market EULA / Terms URL', value: appUrls?.eula ?? '/eula' },
+        { key: 'privacy', label: 'Bitrix24 Market Privacy Policy URL', value: appUrls?.privacy ?? '/privacy' },
     ];
 
     const copy = async (key: string, value: string) => {
@@ -35,7 +35,7 @@ export function EndpointUrlsCard({ appUrls }: { appUrls?: BitrixAppUrls }) {
                     <CardTitle className="text-base">Bitrix24 Developer Area URLs</CardTitle>
                 </div>
                 <CardDescription>
-                    Configure these endpoints when publishing your Mass-Market Marketplace or On-Premise integration in Bitrix24.
+                    Configure these endpoints when publishing your application on Bitrix24 Market or On-Premise accounts.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-xs">

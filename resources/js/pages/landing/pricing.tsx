@@ -14,15 +14,15 @@ interface PricingPageProps {
 const faqs = [
     {
         q: 'How does the trial start when a customer installs the Bitrix24 app?',
-        a: 'During Marketplace installation (/bitrix/install), KEEN Products provisions the tenant portal row and activates the default 7-day free trial subscription automatically using the configured plan trial_days.',
+        a: 'During Bitrix24 Market installation (/bitrix/install), KEEN Products provisions the tenant account row and activates the default 7-day free trial subscription automatically using the configured plan trial_days.',
     },
     {
-        q: 'What if two Bitrix24 portals have completely different UF_CRM_* or Catalog property IDs?',
-        a: 'Each tenant gets an isolated TenantCatalogConfig, TenantFieldMapping, TenantEnumMapping, and TenantSpaBucket record. Portals either 1-click auto-provision clean fields or run Schema Scanner to map existing fields.',
+        q: 'What if two Bitrix24 accounts have completely different UF_CRM_* or Catalog property IDs?',
+        a: 'Each tenant gets an isolated TenantCatalogConfig, TenantFieldMapping, TenantEnumMapping, and TenantSpaBucket record. Accounts either 1-click auto-provision clean fields or run Schema Scanner to map existing fields.',
     },
     {
         q: 'Does it support Bitrix24 On-Premise / Self-Hosted custom domains?',
-        a: 'Yes. Set BITRIX24_ALLOWED_FRAME_ANCESTORS in .env to include custom intranet domains alongside dynamic per-tenant portal domains for iframe placement CSP headers.',
+        a: 'Yes. Set BITRIX24_ALLOWED_FRAME_ANCESTORS in .env to include custom intranet domains alongside dynamic per-tenant account domains for iframe placement CSP headers.',
     },
     {
         q: 'How are Super Admin overrides and enterprise contracts handled?',
@@ -55,13 +55,13 @@ export default function PricingPage({ plans = [] }: PricingPageProps) {
                         className="mx-auto w-fit gap-1.5 border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300"
                     >
                         <Sparkles className="h-3.5 w-3.5" />
-                        Simple SaaS Metering Per Bitrix24 Portal
+                        Simple SaaS Metering Per Bitrix24 Account
                     </Badge>
                     <h1 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
                         Flexible Plans Built for Growing Sales &amp; Ops Teams
                     </h1>
                     <p className="text-muted-foreground mx-auto max-w-xl text-sm sm:text-base">
-                        Every Bitrix24 portal starts with an automated trial. Upgrade inside the embedded Bitrix24 Portal Console or manage portal
+                        Every Bitrix24 account starts with an automated trial. Upgrade inside the embedded Bitrix24 Account Console or manage account
                         contracts directly from Super Admin.
                     </p>
 

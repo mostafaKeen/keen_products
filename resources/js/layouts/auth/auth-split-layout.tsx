@@ -11,7 +11,7 @@ interface AuthLayoutProps {
 }
 
 const highlights = [
-    'Per-portal Catalog property & UF_CRM_* schema crosswalk',
+    'Per-account Catalog property & UF_CRM_* schema crosswalk',
     'Atomic Option 1..N Professional vs. Government fee breakdown',
     'Bidirectional CRM <-> SPA synchronization with loop guards',
     'Super Admin subscription governance & immutable audit logs',
@@ -37,7 +37,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                         </div>
                         <div className="leading-tight">
                             <div className="text-sm font-bold tracking-tight text-white">KEEN Products</div>
-                            <div className="text-[11px] text-slate-400">Bitrix24 Marketplace SaaS</div>
+                            <div className="text-[11px] text-slate-400">Bitrix24 Market SaaS</div>
                         </div>
                     </Link>
 
@@ -62,7 +62,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                             KEEN Products &amp; Schema Automation for Bitrix24
                         </h2>
                         <p className="text-sm leading-relaxed text-slate-300">
-                            Manage subscription tiers, inspect Bitrix24 Cloud &amp; On-Premise portal integrations, and govern automated CRM &amp; SPA
+                            Manage subscription tiers, inspect Bitrix24 Cloud &amp; On-Premise account integrations, and govern automated CRM &amp; SPA
                             synchronization from one unified console.
                         </p>
                     </div>

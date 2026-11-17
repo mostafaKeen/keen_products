@@ -431,7 +431,7 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
             }
             setStatusMsg({
                 type: 'success',
-                text: `Scanned portal: found ${res.snapshot.catalog?.properties.length ?? 0} catalog properties and ${res.snapshot.spas?.length ?? 0} Smart Processes.`,
+                text: `Scanned account: found ${res.snapshot.catalog?.properties.length ?? 0} catalog properties and ${res.snapshot.spas?.length ?? 0} Smart Processes.`,
                 warnings: res.snapshot.warnings,
             });
         } catch (e) {
@@ -689,7 +689,7 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
             hydrateLocalStateFromTenant(res.tenant);
             setStatusMsg({
                 type: 'success',
-                text: 'Custom field & enum mappings saved and portal placement/webhook bindings updated.',
+                text: 'Custom field & enum mappings saved and account placement/webhook bindings updated.',
                 warnings: res.result.warnings,
             });
             onUpdated?.(res.tenant, res.result);
@@ -1084,11 +1084,11 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                     <CardHeader className="pb-3">
                         <CardTitle className="flex items-center gap-2 text-base">
                             <Sparkles className="h-4 w-4 text-indigo-600" />
-                            2. Automatic Portal Provisioning
+                            2. Automatic Account Provisioning
                         </CardTitle>
                         <CardDescription>
                             Idempotently creates missing Commercial Catalog properties, Smart Processes (SPAs), custom entity money/link fields, tab
-                            placements, and background webhooks in your Bitrix24 portal.
+                            placements, and background webhooks in your Bitrix24 account.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-wrap items-center justify-between gap-3">
@@ -1110,9 +1110,9 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                         <CardHeader className="pb-3">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                    <CardTitle className="text-base">2. Portal Introspection & Auto-Suggestion</CardTitle>
+                                    <CardTitle className="text-base">2. Account Introspection & Auto-Suggestion</CardTitle>
                                     <CardDescription>
-                                        Scan your live Bitrix24 portal to fetch real catalog propertyN codes, UF_CRM_* fields, and enum IDs.
+                                        Scan your live Bitrix24 account to fetch real catalog propertyN codes, UF_CRM_* fields, and enum IDs.
                                     </CardDescription>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -1122,7 +1122,7 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                                         ) : (
                                             <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
                                         )}
-                                        Scan Portal Schema
+                                        Scan Account Schema
                                     </Button>
                                     {snapshot?.suggestions && (
                                         <Button type="button" variant="secondary" size="sm" onClick={applySuggestions}>
@@ -1222,7 +1222,7 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
                                                             }}
                                                             className="border-input bg-background h-8 w-full rounded-md border px-2 text-xs"
                                                         >
-                                                            <option value="">— Select Portal SPA —</option>
+                                                            <option value="">— Select Account SPA —</option>
                                                             {snapshot.spas.map((s) => (
                                                                 <option key={s.entityTypeId} value={String(s.entityTypeId)}>
                                                                     {s.title} (entityTypeId={s.entityTypeId})
@@ -1333,7 +1333,7 @@ export function SchemaMapper({ jwt, tenant, maxOptions, features, defaults, init
 
                             {/* Enum Crosswalk */}
                             <div className="space-y-2 border-t pt-4">
-                                <Label className="text-xs font-semibold uppercase">Enum Value Crosswalk (Portal-Specific Enum IDs)</Label>
+                                <Label className="text-xs font-semibold uppercase">Enum Value Crosswalk (Account-Specific Enum IDs)</Label>
                                 <div className="overflow-x-auto rounded-md border">
                                     <table className="w-full text-xs">
                                         <thead className="bg-muted/50 text-left">

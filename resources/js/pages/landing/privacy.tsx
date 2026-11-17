@@ -73,10 +73,10 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">1. Introduction &amp; Scope</h2>
                     <p>
-                        This Privacy Policy describes how <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) collects, uses, and safeguards information through the <strong>KEEN Products</strong> application (&ldquo;Application&rdquo;) designed for the Bitrix24 Marketplace.
+                        This Privacy Policy describes how <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) collects, uses, and safeguards information through the <strong>KEEN Products</strong> application (&ldquo;Application&rdquo;) designed for the Bitrix24 Market.
                     </p>
                     <p>
-                        This policy applies to all Bitrix24 Cloud and On-Premise (Self-Hosted) portals where the Application is installed. By installing or utilizing the Application, you acknowledge and consent to the data practices described in this document.
+                        This policy applies to all Bitrix24 Cloud and On-Premise (Self-Hosted) accounts where the Application is installed. By installing or utilizing the Application, you acknowledge and consent to the data practices described in this document.
                     </p>
                 </section>
 
@@ -88,7 +88,7 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                     </p>
                     <ul className="list-disc space-y-2 pl-6 text-xs sm:text-sm">
                         <li>
-                            <strong>Bitrix24 Portal Identity &amp; OAuth Credentials:</strong> Member ID, Bitrix24 domain name, client REST endpoint, and encrypted OAuth access and refresh tokens.
+                            <strong>Bitrix24 Account Identity &amp; OAuth Credentials:</strong> Member ID, Bitrix24 domain name, client REST endpoint, and encrypted OAuth access and refresh tokens.
                         </li>
                         <li>
                             <strong>User Identity for Seat Licensing:</strong> Bitrix24 User ID, first name, last name, and email address obtained via the authorized Bitrix24 session to confirm that the viewer has been allocated a licensed seat.
@@ -97,7 +97,7 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                             <strong>CRM Product Row &amp; Custom Property Data:</strong> Product IDs, names, prices, quantities, tax rates, and associated Catalog properties (such as Option groups and Cost Types) necessary to calculate subtotals and mirror line items.
                         </li>
                         <li>
-                            <strong>Smart Process Application (SPA) Mappings:</strong> Item IDs and configured field bindings for target SPAs associated with your portal.
+                            <strong>Smart Process Application (SPA) Mappings:</strong> Item IDs and configured field bindings for target SPAs associated with your account.
                         </li>
                         <li>
                             <strong>Operational Logs:</strong> Transaction timestamps, entity identifiers, execution durations, and HTTP API call counts stored for quota tracking and diagnostic support.
@@ -122,7 +122,7 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">4. Data Security &amp; Architectural Safeguards</h2>
                     <p>
-                        We employ enterprise-grade security measures to safeguard all portal credentials and data transactions:
+                        We employ enterprise-grade security measures to safeguard all account credentials and data transactions:
                     </p>
                     <ul className="list-disc space-y-1.5 pl-6 text-xs sm:text-sm">
                         <li>
@@ -144,7 +144,7 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">5. Data Sharing &amp; Third Parties</h2>
                     <p>
-                        We do not sell, rent, trade, or share your data with advertisers or marketing platforms. Information is only communicated directly between your Bitrix24 portal and the secure application server via encrypted HTTPS APIs.
+                        We do not sell, rent, trade, or share your data with advertisers or marketing platforms. Information is only communicated directly between your Bitrix24 account and the secure application server via encrypted HTTPS APIs.
                     </p>
                 </section>
 
@@ -152,14 +152,14 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">6. Data Retention &amp; Erasure</h2>
                     <p>
-                        We retain tenant metadata and synchronization logs only for as long as your portal maintains an active installation or subscription:
+                        We retain tenant metadata and synchronization logs only for as long as your account maintains an active installation or subscription:
                     </p>
                     <ul className="list-disc space-y-1.5 pl-6 text-xs sm:text-sm">
                         <li>
-                            <strong>Application Uninstallation:</strong> When an administrator uninstalls the Application via Bitrix24 Marketplace, active OAuth credentials are immediately invalidated.
+                            <strong>Application Uninstallation:</strong> When an administrator uninstalls the Application via Bitrix24 Market, active OAuth credentials are immediately invalidated.
                         </li>
                         <li>
-                            <strong>Right to Erasure:</strong> Customers may request permanent deletion of all portal configuration records and sync history at any time by emailing <a href="mailto:apps@keenenter.com" className="text-indigo-600 underline dark:text-indigo-400">apps@keenenter.com</a>.
+                            <strong>Right to Erasure:</strong> Customers may request permanent deletion of all account configuration records and sync history at any time by emailing <a href="mailto:apps@keenenter.com" className="text-indigo-600 underline dark:text-indigo-400">apps@keenenter.com</a>.
                         </li>
                     </ul>
                 </section>
@@ -168,7 +168,7 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">7. Your Rights (GDPR &amp; International Standards)</h2>
                     <p>
-                        Depending on your jurisdiction, you have the right to access, rectify, restrict, or request deletion of personal information processed by the Application. Portal administrators can modify seat allocations directly from the Application Settings at any time.
+                        Depending on your jurisdiction, you have the right to access, rectify, restrict, or request deletion of personal information processed by the Application. Account administrators can modify seat allocations directly from the Application Settings at any time.
                     </p>
                 </section>
 

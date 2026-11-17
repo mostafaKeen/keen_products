@@ -34,13 +34,13 @@ const previewRows = [
 const rolloutSteps = [
     {
         step: '01',
-        title: 'Marketplace Install',
+        title: 'Bitrix24 Market Install',
         desc: 'Any Bitrix24 Cloud or On-Premise admin installs the app; OAuth credentials & trial subscription initialize automatically.',
     },
     {
         step: '02',
         title: 'Schema Auto-Provision or Scan',
-        desc: '1-click creation of Catalog properties, Enum IDs, CRM fields (UF_CRM_*), and SPA buckets — or auto-map your portal’s existing schema.',
+        desc: '1-click creation of Catalog properties, Enum IDs, CRM fields (UF_CRM_*), and SPA buckets — or auto-map your account’s existing schema.',
     },
     {
         step: '03',
@@ -50,7 +50,7 @@ const rolloutSteps = [
     {
         step: '04',
         title: 'SaaS Quotas & Admin Control',
-        desc: 'Per-portal monthly sync metering, trial countdowns, grace period protection, and Super Admin plan overrides.',
+        desc: 'Per-account monthly sync metering, trial countdowns, grace period protection, and Super Admin plan overrides.',
     },
 ];
 
@@ -68,15 +68,15 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                             className="gap-1.5 border border-indigo-200/80 bg-indigo-50 text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300"
                         >
                             <Sparkles className="h-3.5 w-3.5" />
-                            Bitrix24 Marketplace Multi-Tenant SaaS
+                            Bitrix24 Market Multi-Tenant SaaS
                         </Badge>
 
                         <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-[2.5rem] lg:leading-[1.15] dark:text-white">
-                            Dynamic Multi-Option Fee Breakdown &amp; SPA Sync for Every Bitrix24 Portal
+                            Dynamic Multi-Option Fee Breakdown &amp; SPA Sync for Every Bitrix24 Account
                         </h1>
 
                         <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
-                            Stop hardcoding portal-specific custom fields. <span className="font-semibold text-foreground">KEEN Products</span>{' '}
+                            Stop hardcoding account-specific custom fields. <span className="font-semibold text-foreground">KEEN Products</span>{' '}
                             dynamically provisions or crosswalks each customer’s Catalog properties, Enum IDs,{' '}
                             <code className="rounded bg-slate-200/70 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">UF_CRM_*</code>{' '}
                             fields, and Smart Processes while syncing Leads, Deals, Quotes, Invoices, and SPAs in real time.
@@ -191,7 +191,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                 {/* Core Capabilities */}
                 <section className="space-y-6">
                     <div className="max-w-2xl space-y-2">
-                        <h2 className="text-2xl font-bold tracking-tight">Built for Multi-Tenant Marketplace Scale</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">Built for Multi-Tenant Bitrix24 Market Scale</h2>
                         <p className="text-sm text-muted-foreground">
                             Every installed Bitrix24 account assigns its own internal IDs to properties, enums, CRM custom fields, and
                             Smart Processes. KEEN Products abstracts those differences cleanly per tenant.
@@ -203,7 +203,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                             {
                                 icon: Workflow,
                                 title: 'Adaptive Schema Provisioning',
-                                desc: 'Auto-create missing Catalog properties, Enum options, UF_CRM_* fields, and SPA containers in one wizard — or scan and map fields already live in the portal.',
+                                desc: 'Auto-create missing Catalog properties, Enum options, UF_CRM_* fields, and SPA containers in one wizard — or scan and map fields already live in the account.',
                             },
                             {
                                 icon: Database,
@@ -213,7 +213,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                             {
                                 icon: ShieldCheck,
                                 title: 'Subscription & Super Admin Engine',
-                                desc: 'Enforce monthly sync quotas, max fee option limits, trial days, grace windows, and Super Admin portal overrides with immutable audit logging.',
+                                desc: 'Enforce monthly sync quotas, max fee option limits, trial days, grace windows, and Super Admin account overrides with immutable audit logging.',
                             },
                         ].map((item) => {
                             const Icon = item.icon;
@@ -238,7 +238,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                 <section className="space-y-6">
                     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                         <div className="space-y-1.5">
-                            <h2 className="text-2xl font-bold tracking-tight">How Marketplace Rollout Works</h2>
+                            <h2 className="text-2xl font-bold tracking-tight">How Bitrix24 Market Rollout Works</h2>
                             <p className="text-sm text-muted-foreground">
                                 From Bitrix24 installation to full multi-option Deal &amp; SPA synchronization in minutes.
                             </p>
@@ -266,17 +266,17 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                 {/* Developer Area URLs + Security Highlights */}
                 <section className="grid gap-6 lg:grid-cols-12 lg:items-start">
                     <div className="space-y-4 lg:col-span-6">
-                        <h2 className="text-2xl font-bold tracking-tight">Security &amp; Multi-Portal Isolation</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">Security &amp; Multi-Account Isolation</h2>
                         <p className="text-sm leading-relaxed text-muted-foreground">
-                            Each Bitrix24 portal authenticates through encrypted OAuth tokens and signed placement session JWTs, with
+                            Each Bitrix24 account authenticates through encrypted OAuth tokens and signed placement session JWTs, with
                             configurable iframe ancestors for custom corporate domains and On-Premise editions.
                         </p>
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="rounded-lg border bg-card p-4 text-xs">
                                 <Lock className="mb-2 h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                <div className="font-semibold">Encrypted Portal Tokens</div>
+                                <div className="font-semibold">Encrypted Account Tokens</div>
                                 <div className="mt-1 text-muted-foreground">
-                                    OAuth access, refresh, and application signature tokens are encrypted at rest per portal.
+                                    OAuth access, refresh, and application signature tokens are encrypted at rest per account.
                                 </div>
                             </div>
                             <div className="rounded-lg border bg-card p-4 text-xs">
@@ -312,7 +312,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                             <div>
                                 <h2 className="text-2xl font-bold tracking-tight">Transparent Subscription Tiers</h2>
                                 <p className="text-sm text-muted-foreground">
-                                    Every installed portal receives a trial period and can upgrade cleanly as volume grows.
+                                    Every installed account receives a trial period and can upgrade cleanly as volume grows.
                                 </p>
                             </div>
                             <Button asChild variant="outline" size="sm">

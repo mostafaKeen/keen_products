@@ -107,7 +107,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Installation Verification Required</AlertTitle>
                         <AlertDescription className="space-y-2">
-                            <p>{error || 'Launch this Installation Wizard directly from your Bitrix24 Marketplace installation.'}</p>
+                            <p>{error || 'Launch this Installation Wizard directly from your Bitrix24 Market installation.'}</p>
                             <p className="text-xs">
                                 Need technical assistance? Contact our support team at{' '}
                                 <a href="mailto:apps@keenenter.com" className="font-semibold underline">
@@ -122,7 +122,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
     }
 
     const steps = [
-        { num: 1, title: 'Portal & Trial', icon: ShieldCheck },
+        { num: 1, title: 'Account & Trial', icon: ShieldCheck },
         { num: 2, title: 'Schema Setup', icon: Sliders },
         { num: 3, title: 'Activate Tabs', icon: Rocket },
     ] as const;
@@ -137,7 +137,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">KEEN Products Installer</h1>
                         <p className="text-muted-foreground text-sm">
-                            Portal: <span className="text-foreground font-medium">{tenantState.domain}</span> · Member ID:{' '}
+                            Account: <span className="text-foreground font-medium">{tenantState.domain}</span> · Member ID:{' '}
                             <span className="font-mono text-xs">{tenantState.member_id}</span>
                         </p>
                     </div>
@@ -182,9 +182,9 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                     <div className="space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Portal Connected & Authenticated</CardTitle>
+                                <CardTitle>Account Connected &amp; Authenticated</CardTitle>
                                 <CardDescription>
-                                    Your Bitrix24 OAuth tokens and portal identity are verified. Your portal begins on the{' '}
+                                    Your Bitrix24 OAuth tokens and account identity are verified. Your account begins on the{' '}
                                     <strong>{subscription?.plan?.name ?? '7-Day Free Trial'}</strong> ({subscription?.status ?? 'trialing'}).
                                 </CardDescription>
                             </CardHeader>
@@ -202,7 +202,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                                         </div>
                                     </div>
                                     <div className="rounded-md border p-3 text-sm">
-                                        <div className="text-muted-foreground text-xs">Marketplace Code</div>
+                                        <div className="text-muted-foreground text-xs">Bitrix24 Market Code</div>
                                         <div className="font-mono font-semibold">{tenantState.app_status}</div>
                                     </div>
                                 </div>
@@ -289,7 +289,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                                     <AlertTitle>Installation Completed!</AlertTitle>
                                     <AlertDescription className="space-y-2">
                                         <p>
-                                            Portal status is now <strong>{completeResult.install_status}</strong>. You can now open any configured
+                                            Account status is now <strong>{completeResult.install_status}</strong>. You can now open any configured
                                             Deal, Lead, or Quote in Bitrix24 and use the <strong>KEEN Products</strong> tab.
                                         </p>
                                         {completeResult.bindings?.placements && (

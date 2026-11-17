@@ -103,10 +103,10 @@ class SubscriptionGate
 
         if ($tenant->install_status === Tenant::INSTALL_SUSPENDED) {
             $allowed = false;
-            $reason = 'This Bitrix24 portal account is suspended. Please contact app support at apps@keenenter.com.';
+            $reason = 'This Bitrix24 account is suspended. Please contact app support at apps@keenenter.com.';
         } elseif ($tenant->install_status === Tenant::INSTALL_UNINSTALLED) {
             $allowed = false;
-            $reason = 'The application has been uninstalled from this Bitrix24 portal.';
+            $reason = 'The application has been uninstalled from this Bitrix24 account.';
         } elseif (in_array($subscription->status, [
             Subscription::STATUS_EXPIRED,
             Subscription::STATUS_SUSPENDED,

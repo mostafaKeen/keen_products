@@ -528,7 +528,7 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                                 Need access to this quoting tool?
                             </strong>
                             <p>
-                                Please contact your Bitrix24 portal administrator. They can grant your user account a licensed seat from the <strong>Application Settings &gt; User Access &amp; Seat Allocation</strong> menu.
+                                Please contact your Bitrix24 account administrator. They can grant your user account a licensed seat from the <strong>Application Settings &gt; User Access &amp; Seat Allocation</strong> menu.
                             </p>
                             <p className="mt-2.5 pt-2 border-t border-slate-200/80 text-[11px] text-slate-500 dark:border-slate-800 dark:text-slate-400">
                                 Need technical support or have billing questions? Contact us at{' '}
@@ -653,10 +653,10 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                 {!entity.is_configured && (
                     <Alert>
                         <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Portal Schema Not Mapped</AlertTitle>
+                        <AlertTitle>Account Schema Not Mapped</AlertTitle>
                         <AlertDescription>
                             This CRM entity or the Commercial Catalog is not yet provisioned. Ask your Bitrix24 administrator to open Applications →
-                            Fee Breakdown Settings to complete provisioning or custom field mapping.
+                            KEEN Products Settings to complete provisioning or custom field mapping.
                         </AlertDescription>
                     </Alert>
                 )}

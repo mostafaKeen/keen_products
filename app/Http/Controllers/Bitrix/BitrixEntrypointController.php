@@ -11,11 +11,13 @@ use App\Models\TenantCatalogConfig;
 use App\Services\Bitrix24\Bitrix24Client;
 use App\Services\Bitrix24\BitrixDomainGuard;
 use App\Services\Bitrix24\BitrixJwtService;
+use App\Services\Bitrix24\BitrixPlacementEventSyncer;
 use App\Services\Subscriptions\SubscriptionGate;
 use App\Services\Sync\TenantSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -27,6 +29,7 @@ class BitrixEntrypointController extends Controller
         private readonly BitrixJwtService $jwtService,
         private readonly SubscriptionGate $gate,
         private readonly TenantSyncService $syncService,
+        private readonly BitrixPlacementEventSyncer $syncer,
     ) {}
 
     /**
@@ -51,7 +54,7 @@ class BitrixEntrypointController extends Controller
             || ! $this->domainGuard->isSafeDomain($domain)
         ) {
             return $this->installErrorResponse(
-                'Open this Installation Wizard inside your Bitrix24 portal when installing the application.',
+                'Open this Installation Wizard inside your Bitrix24 account when installing the application.',
                 Plan::cachedPublicPlans()
             );
         }
@@ -65,17 +68,17 @@ class BitrixEntrypointController extends Controller
         $existingTenant = Tenant::where('member_id', $memberId)->first();
         if ($existingTenant && $existingTenant->install_status === Tenant::INSTALL_SUSPENDED) {
             return $this->installErrorResponse(
-                'This Bitrix24 portal account is suspended. Please contact app support at apps@keenenter.com.'
+                'This Bitrix24 account is suspended. Please contact app support at apps@keenenter.com.'
             );
         }
 
         $isReinstall = $existingTenant !== null && $existingTenant->install_status === Tenant::INSTALL_UNINSTALLED;
 
-        // Enforce Marketplace Cloud / allowlisted Self-Hosted portal origin and signature BEFORE probing outbound URLs.
+        // Enforce Market Cloud / allowlisted Self-Hosted account origin and signature BEFORE probing outbound URLs.
         if (! $existingTenant || $isReinstall) {
             if (! $this->domainGuard->isAllowedInstallDomain($domain)) {
                 return $this->installErrorResponse(
-                    'This domain is not authorized for Bitrix24 Marketplace installation. Contact support at apps@keenenter.com to allowlist a Self-Hosted Bitrix24 domain.'
+                    'This domain is not authorized for Bitrix24 Market installation. Contact support at apps@keenenter.com to allowlist a Self-Hosted Bitrix24 domain.'
                 );
             }
 
@@ -91,20 +94,20 @@ class BitrixEntrypointController extends Controller
             return $this->installErrorResponse('Invalid Bitrix24 application signature.');
         }
 
-        // Always verify AUTH_ID against the already-registered portal endpoint when the tenant exists,
+        // Always verify AUTH_ID against the already-registered account endpoint when the tenant exists,
         // preventing attacker-controlled DOMAIN parameters from hijacking client_endpoint or leaking tokens.
         $probeEndpoint = ($existingTenant && ! empty($existingTenant->client_endpoint))
             ? $existingTenant->client_endpoint
             : $this->buildClientEndpoint($domain);
 
         if (! $this->domainGuard->isSafeHttpsUrl($probeEndpoint)) {
-            return $this->installErrorResponse('Portal REST endpoint failed safety verification.');
+            return $this->installErrorResponse('Account REST endpoint failed safety verification.');
         }
 
         $viewer = $this->probeViewer($probeEndpoint, $authId);
 
         if (! $viewer['verified']) {
-            return $this->installErrorResponse('Could not verify your Bitrix24 administrator session with the portal API.');
+            return $this->installErrorResponse('Could not verify your Bitrix24 administrator session with the account API.');
         }
 
         if (! $viewer['is_admin']) {
@@ -150,6 +153,15 @@ class BitrixEntrypointController extends Controller
 
         $tenant->save();
 
+        try {
+            $this->syncer->sync($tenant);
+        } catch (\Throwable $e) {
+            Log::warning('Automatic placement/event sync failed during install', [
+                'tenant_id' => $tenant->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
         $jwt = $this->jwtService->issueForTenant(
             $tenant,
@@ -184,7 +196,7 @@ class BitrixEntrypointController extends Controller
         $domain = strtolower(trim((string) $request->input('DOMAIN', '')));
 
         if (! $this->isValidMemberId($memberId)) {
-            return $this->appErrorResponse('Open this page from your Bitrix24 portal Applications menu.');
+            return $this->appErrorResponse('Open this page from your Bitrix24 account Applications menu.');
         }
 
         if ($authId === '') {
@@ -193,15 +205,15 @@ class BitrixEntrypointController extends Controller
 
         $tenant = Tenant::where('member_id', $memberId)->first();
         if (! $tenant) {
-            return $this->appErrorResponse('This Bitrix24 portal is not registered yet. Please reinstall the application.');
+            return $this->appErrorResponse('This Bitrix24 account is not registered yet. Please reinstall the application.');
         }
 
         if ($tenant->install_status === Tenant::INSTALL_UNINSTALLED) {
-            return $this->appErrorResponse('This Bitrix24 portal has uninstalled the application. Please reinstall from Bitrix24 Marketplace.');
+            return $this->appErrorResponse('This Bitrix24 account has uninstalled the application. Please reinstall from Bitrix24 Market.');
         }
 
         if ($tenant->install_status === Tenant::INSTALL_SUSPENDED) {
-            return $this->appErrorResponse('This Bitrix24 portal account is suspended. Please contact app support at apps@keenenter.com.');
+            return $this->appErrorResponse('This Bitrix24 account is suspended. Please contact app support at apps@keenenter.com.');
         }
 
         if (! empty($tenant->application_token_enc) && $appToken !== '' && ! $tenant->verifyApplicationToken($appToken)) {
@@ -209,7 +221,7 @@ class BitrixEntrypointController extends Controller
         }
 
         if (empty($tenant->client_endpoint) || ! $this->domainGuard->isSafeHttpsUrl($tenant->client_endpoint)) {
-            return $this->appErrorResponse('Portal REST endpoint failed safety verification.');
+            return $this->appErrorResponse('Account REST endpoint failed safety verification.');
         }
 
         $viewer = $this->probeViewer($tenant->client_endpoint, $authId);
@@ -246,10 +258,21 @@ class BitrixEntrypointController extends Controller
         $isAdmin = (bool) $viewer['is_admin'];
         $b24UserId = $viewer['user_id'] ?? null;
 
+        if ($isAdmin && $tenant->entityConfigs()->count() === 0) {
+            try {
+                $this->syncer->sync($tenant);
+            } catch (\Throwable $e) {
+                Log::warning('Automatic placement/event sync failed in app entrypoint', [
+                    'tenant_id' => $tenant->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         if (! $tenant->isUserAllowed($b24UserId)) {
             $userTag = $b24UserId ? " (User ID #{$b24UserId})" : '';
 
-            return $this->appErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted access to this application. Please contact your portal administrator or reach support at apps@keenenter.com to assign a license seat.");
+            return $this->appErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted access to this application. Please contact your account administrator or reach support at apps@keenenter.com to assign a license seat.");
         }
 
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
@@ -303,11 +326,11 @@ class BitrixEntrypointController extends Controller
 
         $tenant = Tenant::where('member_id', $memberId)->first();
         if (! $tenant) {
-            return $this->widgetErrorResponse('Portal registration not found. Ask your Bitrix24 administrator to reinstall the app.');
+            return $this->widgetErrorResponse('Account registration not found. Ask your Bitrix24 administrator to reinstall the app.');
         }
 
         if (! $tenant->isActive()) {
-            return $this->widgetErrorResponse('This application is not active on this Bitrix24 portal.');
+            return $this->widgetErrorResponse('This application is not active on this Bitrix24 account.');
         }
 
         $subEval = $this->gate->evaluate($tenant, requireSyncQuota: false);
@@ -320,7 +343,7 @@ class BitrixEntrypointController extends Controller
         }
 
         if (empty($tenant->client_endpoint) || ! $this->domainGuard->isSafeHttpsUrl($tenant->client_endpoint)) {
-            return $this->widgetErrorResponse('Portal REST endpoint failed safety verification.');
+            return $this->widgetErrorResponse('Account REST endpoint failed safety verification.');
         }
 
         $viewer = $this->probeViewer($tenant->client_endpoint, $authId);
@@ -332,7 +355,7 @@ class BitrixEntrypointController extends Controller
         if (! $tenant->isUserAllowed($b24UserId)) {
             $userTag = $b24UserId ? " (User ID #{$b24UserId})" : '';
 
-            return $this->widgetErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted a license to use this widget. Please contact your portal administrator or reach support at apps@keenenter.com to assign a license seat.");
+            return $this->widgetErrorResponse("Access Denied: Your Bitrix24 user account{$userTag} has not been granted a license to use this widget. Please contact your account administrator or reach support at apps@keenenter.com to assign a license seat.");
         }
 
         $entityTypeId = $this->resolveEntityTypeIdFromPlacement($placement);
@@ -472,6 +495,15 @@ class BitrixEntrypointController extends Controller
                 'uninstalled_at' => null,
             ])->save();
             $this->gate->ensureInitialSubscription($tenant);
+
+            try {
+                $this->syncer->sync($tenant);
+            } catch (\Throwable $e) {
+                Log::warning('Automatic placement/event sync failed during ONAPPINSTALL', [
+                    'tenant_id' => $tenant->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             return response('OK', 200);
         }

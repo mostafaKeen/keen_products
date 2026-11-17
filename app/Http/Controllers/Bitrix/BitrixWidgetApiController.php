@@ -195,7 +195,7 @@ class BitrixWidgetApiController extends Controller
                 if (! is_array($existingProd) || (int) ($existingProd['iblockId'] ?? 0) !== (int) $catalogConfig->iblock_id) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Catalog product not found in this portal catalog.',
+                        'message' => 'Catalog product not found in this account catalog.',
                     ], 403);
                 }
             }

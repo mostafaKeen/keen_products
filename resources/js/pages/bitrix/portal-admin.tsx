@@ -113,8 +113,8 @@ export default function BitrixPortalAdmin({
                 <Head title="Application Console" />
                 <Alert variant="destructive" className="mx-auto max-w-2xl">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Unable to Open Portal Console</AlertTitle>
-                    <AlertDescription>{error || 'Portal session could not be verified.'}</AlertDescription>
+                    <AlertTitle>Unable to Open Account Console</AlertTitle>
+                    <AlertDescription>{error || 'Account session could not be verified.'}</AlertDescription>
                 </Alert>
             </div>
         );
@@ -133,14 +133,14 @@ export default function BitrixPortalAdmin({
                                 <Badge variant="secondary">{subEval?.plan?.name ?? 'Trial'}</Badge>
                             </div>
                             <CardDescription>
-                                Connected Portal: <strong>{tenant.domain}</strong>
+                                Connected Account: <strong>{tenant.domain}</strong>
                                 {viewer_name ? ` · Signed in as ${viewer_name}` : ''}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <p className="text-muted-foreground">
                                 You can manage KEEN Products lines directly inside any enabled CRM Deal, Lead, Quote, or Smart Process tab.
-                                Configuration changes and subscription upgrades require a Bitrix24 Portal Administrator.
+                                Configuration changes and subscription upgrades require a Bitrix24 Account Administrator.
                             </p>
                             {subEval?.banner && (
                                 <Alert>
@@ -445,7 +445,7 @@ export default function BitrixPortalAdmin({
                             <CardHeader className="flex flex-row items-center justify-between pb-3">
                                 <div>
                                     <CardTitle className="text-base">Recent Sync Activity</CardTitle>
-                                    <CardDescription>Latest 50 entity synchronizations for this portal.</CardDescription>
+                                    <CardDescription>Latest 50 entity synchronizations for this account.</CardDescription>
                                 </div>
                                 <Button variant="outline" size="sm" onClick={handleRefreshLogs} disabled={busyAction !== null}>
                                     <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
@@ -516,7 +516,7 @@ export default function BitrixPortalAdmin({
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div>
-                                    <CardTitle className="text-base">Choose Your Portal Plan</CardTitle>
+                                    <CardTitle className="text-base">Choose Your Account Plan</CardTitle>
                                     <CardDescription>
                                         Requesting a plan notifies our SaaS billing team to activate your subscription or send an invoice.
                                         You can also contact support directly at{' '}

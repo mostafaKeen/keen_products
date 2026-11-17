@@ -90,7 +90,7 @@ Route::middleware(['auth', 'super_admin'])
 
 /*
 |--------------------------------------------------------------------------
-| Bitrix24 Marketplace Entrypoints & Event Webhooks (Iframe & Server-to-Server)
+| Bitrix24 Market Entrypoints & Event Webhooks (Iframe & Server-to-Server)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['bitrix.iframe'])

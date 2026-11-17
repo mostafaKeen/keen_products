@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy &mdash; KEEN Products</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 860px; margin: 0 auto; padding: 40px 20px; background-color: #f8fafc; }
+        .container { background: #ffffff; padding: 40px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        h1 { color: #0f172a; font-size: 28px; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+        h2 { color: #1e293b; font-size: 18px; margin-top: 28px; margin-bottom: 8px; }
+        p, li { font-size: 14px; color: #334155; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 6px; }
+        .meta { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+        .badge { display: inline-block; background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+        .contact-box { background: #f1f5f9; padding: 16px; border-radius: 6px; margin-top: 20px; border-left: 4px solid #4f46e5; }
+        a { color: #4f46e5; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="badge">Bitrix24 Market Privacy Policy</div>
+        <h1>Privacy Policy</h1>
+        <div class="meta">
+            <strong>Application:</strong> KEEN Products &bull; 
+            <strong>Publisher:</strong> KEEN Enterprises &bull; 
+            <strong>Effective Date:</strong> November 2026 &bull; 
+            <strong>Contact:</strong> <a href="mailto:apps@keenenter.com">apps@keenenter.com</a>
+        </div>
+
+        <h2>1. Introduction & Scope</h2>
+        <p>This Privacy Policy explains how <strong>KEEN Enterprises</strong> ("we", "us", or "our") collects, processes, and protects information in connection with the <strong>KEEN Products</strong> application ("Application") available on the Bitrix24 Market.</p>
+        <p>This policy applies to all Bitrix24 Cloud and On-Premise (Self-Hosted) accounts where the Application is installed. We are committed to data minimization, transparency, and strict adherence to enterprise security standards.</p>
+
+        <h2>2. Information We Process</h2>
+        <p>To provide fee calculations, quoting grids, and real-time Smart Process synchronization, the Application processes:</p>
+        <ul>
+            <li><strong>Bitrix24 Account Identity & OAuth Credentials:</strong> Member ID, Bitrix24 account domain (e.g., youraccount.bitrix24.com), client REST endpoint, and encrypted OAuth access and refresh tokens.</li>
+            <li><strong>User Identity & Seat Allocation:</strong> Bitrix24 User ID, full name, and email address passed during authorized Bitrix24 placement sessions to verify that the active user is allocated a licensed seat.</li>
+            <li><strong>CRM Product Row & Catalog Properties:</strong> Product row IDs, item names, prices, quantities, discount and tax rates, and mapped catalog properties (such as Option groups and Cost Types) needed to compute subtotals and mirror line items.</li>
+            <li><strong>Smart Process (SPA) Target Bindings:</strong> SPA item IDs and configured field mappings required to mirror fee subtotals into linked Smart Process records.</li>
+            <li><strong>Operational & Diagnostic Logs:</strong> Timestamps, sync triggers, execution durations, and REST call counts stored for quota metering and customer support.</li>
+        </ul>
+
+        <h2>3. How We Use Your Information</h2>
+        <p>Information processed by the Application is used exclusively to:</p>
+        <ul>
+            <li>Render the fee breakdown and multi-option quoting interface inside Bitrix24 CRM detail tabs;</li>
+            <li>Calculate subtotal fields (Professional Fees, Government Costs, Combined Opportunity);</li>
+            <li>Synchronize CRM product lines into designated Bitrix24 Smart Process Applications in real time;</li>
+            <li>Enforce per-user licensed seat allocations and plan quotas;</li>
+            <li>Deliver technical assistance and troubleshooting when requested by the customer.</li>
+        </ul>
+
+        <h2>4. Data Storage & Security Measures</h2>
+        <p>We implement comprehensive security controls to protect all customer data:</p>
+        <ul>
+            <li><strong>Encryption at Rest:</strong> All Bitrix24 OAuth access tokens and refresh tokens are encrypted using AES-256-CBC encryption.</li>
+            <li><strong>Scoped Placement Tokens:</strong> Embedded iframes exchange initial Bitrix auth payloads for short-lived, signed HS256 JSON Web Tokens (JWTs).</li>
+            <li><strong>Network & SSRF Safeguards:</strong> Outbound REST calls validate target domains against strict Bitrix24 allowlists and reject internal or private IP address spaces.</li>
+            <li><strong>Frame Ancestor Security (CSP):</strong> Iframe embedding is strictly locked to verified Bitrix24 cloud accounts and explicitly configured intranet domains via <code>frame-ancestors</code> directives.</li>
+            <li><strong>Zero Commercial Data Sharing:</strong> We do not sell, rent, monetize, or share your CRM records with any third-party advertisers.</li>
+        </ul>
+
+        <h2>5. Data Retention & Deletion</h2>
+        <p>We retain account configuration data only as long as you maintain an active installation or subscription:</p>
+        <ul>
+            <li><strong>Immediate Invalidation on Uninstall:</strong> When the Application is uninstalled via the Bitrix24 Market, all active OAuth tokens are immediately revoked and invalidated.</li>
+            <li><strong>Right to Permanent Deletion:</strong> Account administrators may request permanent purging of all stored configuration and log records at any time by emailing <a href="mailto:apps@keenenter.com">apps@keenenter.com</a>.</li>
+        </ul>
+
+        <h2>6. Your Rights (GDPR & CCPA Compliance)</h2>
+        <p>Under applicable international data protection laws (including GDPR and CCPA), you have the right to request access to, rectification of, or erasure of personal information processed by the Application. Account administrators can modify seat allocations directly from the Application Settings at any time.</p>
+
+        <h2>7. Contact Information</h2>
+        <div class="contact-box">
+            <strong>KEEN Enterprises — Data Privacy & Support</strong><br>
+            Website: <a href="https://products.keenenter.com/">https://products.keenenter.com/</a><br>
+            Support Email: <a href="mailto:apps@keenenter.com">apps@keenenter.com</a><br>
+            Subject: Privacy Policy & Data Inquiries
+        </div>
+    </div>
+</body>
+</html>

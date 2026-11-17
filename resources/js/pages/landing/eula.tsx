@@ -30,7 +30,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                         End User License Agreement (EULA)
                     </h1>
                     <p className="text-muted-foreground text-sm sm:text-base">
-                        Terms of Service and License Conditions for the <strong>KEEN Products</strong> Application on the Bitrix24 Marketplace.
+                        Terms of Service and License Conditions for the <strong>KEEN Products</strong> Application on the Bitrix24 Market.
                     </p>
                     <div className="text-muted-foreground flex flex-wrap items-center gap-4 pt-1 text-xs">
                         <span>Last Updated: November 2026</span>
@@ -60,7 +60,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                         </div>
                         <div className="flex items-start gap-2">
                             <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                            <span><strong>Per-Seat User Control:</strong> Licensed seats are allocated in the Admin Portal. Only authorized users can access the Fee Grid and quoting widgets.</span>
+                            <span><strong>Per-Seat User Control:</strong> Licensed seats are allocated in the Admin Console. Only authorized users can access the Fee Grid and quoting widgets.</span>
                         </div>
                         <div className="flex items-start gap-2">
                             <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
@@ -73,7 +73,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">1. Agreement to Terms</h2>
                     <p>
-                        This End User License Agreement (&ldquo;EULA&rdquo; or &ldquo;Agreement&rdquo;) is a binding legal contract between <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) and the entity or individual (&ldquo;Customer&rdquo;, &ldquo;you&rdquo;, or &ldquo;Licensee&rdquo;) installing, configuring, or using the <strong>KEEN Products</strong> application (&ldquo;Application&rdquo;) from the Bitrix24 Marketplace.
+                        This End User License Agreement (&ldquo;EULA&rdquo; or &ldquo;Agreement&rdquo;) is a binding legal contract between <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) and the entity or individual (&ldquo;Customer&rdquo;, &ldquo;you&rdquo;, or &ldquo;Licensee&rdquo;) installing, configuring, or using the <strong>KEEN Products</strong> application (&ldquo;Application&rdquo;) from the Bitrix24 Market.
                     </p>
                     <p>
                         By installing, authorizing through OAuth, or using the Application within your Bitrix24 Cloud or On-Premise instance, you agree to be bound by all terms in this Agreement. If you are acting on behalf of a company or organization, you represent that you have legal authority to bind that entity.
@@ -84,7 +84,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">2. Scope &amp; Grant of License</h2>
                     <p>
-                        Subject to the terms of this Agreement and active subscription status, KEEN Enterprises grants you a limited, non-exclusive, non-transferable, revocable license to install and execute the Application solely inside the Bitrix24 portal domain associated with your installation.
+                        Subject to the terms of this Agreement and active subscription status, KEEN Enterprises grants you a limited, non-exclusive, non-transferable, revocable license to install and execute the Application solely inside the Bitrix24 account domain associated with your installation.
                     </p>
                     <p>
                         The Application provides multi-option fee calculations, custom property schema adaptation, and bidirectional synchronization with Bitrix24 Smart Process Applications (SPAs).
@@ -114,11 +114,11 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">4. 7-Day Free Trial, Billing &amp; Renewals</h2>
                     <p>
-                        Each newly provisioned Bitrix24 portal starts with an automated <strong>7-Day Free Trial</strong> enabling evaluation of fee grids and SPA sync pipelines:
+                        Each newly provisioned Bitrix24 account starts with an automated <strong>7-Day Free Trial</strong> enabling evaluation of fee grids and SPA sync pipelines:
                     </p>
                     <ul className="list-disc space-y-1.5 pl-6 text-xs sm:text-sm">
                         <li>
-                            <strong>Trial Duration:</strong> The trial commences upon initial Marketplace installation and expires after seven (7) calendar days.
+                            <strong>Trial Duration:</strong> The trial commences upon initial Bitrix24 Market installation and expires after seven (7) calendar days.
                         </li>
                         <li>
                             <strong>Grace Period:</strong> Expired subscriptions enter a 7-day grace window allowing plan upgrades before background synchronizations are halted.
@@ -148,7 +148,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                         <li>Reverse-engineer, decompile, or disassemble any part of the Application backend;</li>
                         <li>Attempt to bypass license gates, quota meters, or seat assignment verification;</li>
                         <li>Falsify Bitrix24 domain origins, signatures (APPLICATION_TOKEN), or member IDs;</li>
-                        <li>Use the Application for unlawful purposes or in violation of Bitrix24 Marketplace guidelines.</li>
+                        <li>Use the Application for unlawful purposes or in violation of Bitrix24 Market guidelines.</li>
                     </ul>
                 </section>
 
@@ -167,10 +167,10 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">8. Termination</h2>
                     <p>
-                        This Agreement remains effective until terminated. You may terminate this Agreement at any time by uninstalling the Application from your Bitrix24 Marketplace Applications menu. Upon uninstallation, all active OAuth access credentials are immediately revoked.
+                        This Agreement remains effective until terminated. You may terminate this Agreement at any time by uninstalling the Application from your Bitrix24 Market Applications menu. Upon uninstallation, all active OAuth access credentials are immediately revoked.
                     </p>
                     <p>
-                        We reserve the right to suspend or terminate portal access upon material breach of this Agreement, non-payment, or security violations.
+                        We reserve the right to suspend or terminate account access upon material breach of this Agreement, non-payment, or security violations.
                     </p>
                 </section>
 

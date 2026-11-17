@@ -13,7 +13,7 @@ class PlanSeeder extends Seeder
             [
                 'code' => 'trial',
                 'name' => 'Free Trial / Sandbox',
-                'description' => '7-day full evaluation for Bitrix24 Marketplace portals with up to 150 syncs/month.',
+                'description' => '7-day full evaluation for Bitrix24 Market accounts with up to 150 syncs/month.',
                 'billing_type' => 'fixed',
                 'price_per_user_cents' => null,
                 'price_monthly_cents' => 0,

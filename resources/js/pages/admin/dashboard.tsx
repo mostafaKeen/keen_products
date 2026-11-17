@@ -65,9 +65,9 @@ export default function AdminDashboard({ kpis, sync_series, upgrade_requests, re
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">Marketplace Control Center</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight">Market Control Center</h1>
                         <p className="text-muted-foreground text-sm">
-                            Monitor Bitrix24 tenant portals, subscription health, revenue, and background sync volume.
+                            Monitor Bitrix24 tenant accounts, subscription health, revenue, and background sync volume.
                         </p>
                     </div>
                     <div className="flex items-center gap-2">

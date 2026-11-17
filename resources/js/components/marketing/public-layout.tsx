@@ -61,7 +61,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         </div>
                         <div className="leading-tight">
                             <div className="text-sm font-bold tracking-tight">KEEN Products</div>
-                            <div className="text-muted-foreground text-[11px]">Bitrix24 Marketplace SaaS</div>
+                            <div className="text-muted-foreground text-[11px]">Bitrix24 Market SaaS</div>
                         </div>
                     </Link>
 
@@ -193,7 +193,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             <span className="text-sm font-bold tracking-tight">KEEN Products</span>
                         </div>
                         <p className="text-muted-foreground max-w-sm text-xs leading-relaxed">
-                            Multi-tenant Bitrix24 Marketplace app for dynamic Professional vs. Government fee breakdowns, automatic portal
+                            Multi-tenant Bitrix24 Market app for dynamic Professional vs. Government fee breakdowns, automatic account
                             custom-field mapping, and real-time CRM + SPA synchronization.
                         </p>
                     </div>
@@ -281,7 +281,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                 <div className="border-t border-slate-200/70 dark:border-slate-800/70">
                     <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs sm:flex-row">
                         <span>&copy; {new Date().getFullYear()} KEEN Products. Built for Bitrix24 Cloud &amp; On-Premise.</span>
-                        <span>Multi-tenant isolation powered by per-portal schema mapping &amp; encrypted OAuth.</span>
+                        <span>Multi-tenant isolation powered by per-account schema mapping &amp; encrypted OAuth.</span>
                     </div>
                 </div>
             </footer>
