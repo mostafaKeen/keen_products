@@ -46,7 +46,7 @@ return [
         'support_email' => env('APP_SUPPORT_EMAIL', 'apps@keenenter.com'),
         'default_trial_days' => (int) env('BITRIX24_DEFAULT_TRIAL_DAYS', 7),
         'grace_period_days' => (int) env('BITRIX24_GRACE_PERIOD_DAYS', 7),
-        'widget_tab_title' => env('BITRIX24_WIDGET_TAB_TITLE', 'KEEN Products'),
+        'widget_tab_title' => env('BITRIX24_WIDGET_TAB_TITLE', 'KEEN Inventory'),
         'allowed_frame_ancestors' => env('BITRIX24_ALLOWED_FRAME_ANCESTORS', ''),
         'allow_custom_domains' => (bool) env('BITRIX24_ALLOW_CUSTOM_DOMAINS', false),
         'allowed_domains' => env('BITRIX24_ALLOWED_DOMAINS', ''),

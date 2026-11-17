@@ -57,7 +57,7 @@ const rolloutSteps = [
 export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
     return (
         <PublicLayout>
-            <Head title="KEEN Products — Multi-Option Fee Breakdown & SPA Sync for Bitrix24" />
+            <Head title="KEEN Inventory — Multi-Option Fee Breakdown & SPA Sync for Bitrix24" />
 
             {/* Hero */}
             <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/75 via-white to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/35 dark:via-slate-950 dark:to-slate-950">
@@ -76,7 +76,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                         </h1>
 
                         <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
-                            Stop hardcoding account-specific custom fields. <span className="font-semibold text-foreground">KEEN Products</span>{' '}
+                            Stop hardcoding account-specific custom fields. <span className="font-semibold text-foreground">KEEN Inventory</span>{' '}
                             dynamically provisions or crosswalks each customer’s Catalog properties, Enum IDs,{' '}
                             <code className="rounded bg-slate-200/70 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">UF_CRM_*</code>{' '}
                             fields, and Smart Processes while syncing Leads, Deals, Quotes, Invoices, and SPAs in real time.
@@ -122,7 +122,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                                     <div className="flex h-6 w-6 items-center justify-center rounded bg-indigo-500">
                                         <Layers className="h-3.5 w-3.5 text-white" />
                                     </div>
-                                    <span className="text-xs font-semibold">Bitrix24 Deal #4821 — KEEN Products Placement</span>
+                                    <span className="text-xs font-semibold">Bitrix24 Deal #4821 — KEEN Inventory Placement</span>
                                 </div>
                                 <Badge className="bg-emerald-500/20 text-[10px] text-emerald-300 hover:bg-emerald-500/20">
                                     Synced &bull; 140ms
@@ -194,7 +194,7 @@ export default function Welcome({ plans = [], app_urls }: WelcomeProps) {
                         <h2 className="text-2xl font-bold tracking-tight">Built for Multi-Tenant Bitrix24 Market Scale</h2>
                         <p className="text-sm text-muted-foreground">
                             Every installed Bitrix24 account assigns its own internal IDs to properties, enums, CRM custom fields, and
-                            Smart Processes. KEEN Products abstracts those differences cleanly per tenant.
+                            Smart Processes. KEEN Inventory abstracts those differences cleanly per tenant.
                         </p>
                     </div>
 

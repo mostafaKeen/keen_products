@@ -548,7 +548,7 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
 
     return (
         <div className="min-h-screen bg-slate-50/70 p-4 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-            <Head title={`KEEN Products — ${entity.title}`} />
+            <Head title={`KEEN Inventory — ${entity.title}`} />
 
             <div className="mx-auto max-w-[1400px] space-y-4">
                 {/* Top Header Bar */}
@@ -656,7 +656,7 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
                         <AlertTitle>Account Schema Not Mapped</AlertTitle>
                         <AlertDescription>
                             This CRM entity or the Commercial Catalog is not yet provisioned. Ask your Bitrix24 administrator to open Applications →
-                            KEEN Products Settings to complete provisioning or custom field mapping.
+                            KEEN Inventory Settings to complete provisioning or custom field mapping.
                         </AlertDescription>
                     </Alert>
                 )}
@@ -1262,7 +1262,7 @@ export default function BitrixWidget({ error: initialError, jwt, bx24_script_url
 
             {/* Widget Support Line */}
             <div className="pt-2 text-center text-xs text-muted-foreground">
-                <span>KEEN Products &bull; Need help or feature assistance? Contact us at </span>
+                <span>KEEN Inventory &bull; Need help or feature assistance? Contact us at </span>
                 <a href="mailto:apps@keenenter.com" className="font-medium text-indigo-600 hover:underline dark:text-indigo-400">
                     apps@keenenter.com
                 </a>

@@ -25,7 +25,7 @@ export default function Dashboard() {
                             <Sparkles className="h-5 w-5 text-indigo-600" />
                             Welcome, {auth.user.name}
                         </CardTitle>
-                        <CardDescription>Bitrix24 Multi-Tenant KEEN Products Platform</CardDescription>
+                        <CardDescription>Bitrix24 Multi-Tenant KEEN Inventory Platform</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Alert>

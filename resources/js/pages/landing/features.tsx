@@ -47,7 +47,7 @@ const schemaCrosswalk = [
 export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
     return (
         <PublicLayout>
-            <Head title="Architecture & Sync — KEEN Products" />
+            <Head title="Architecture & Sync — KEEN Inventory" />
 
             <section className="border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/70 to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/30 dark:to-slate-950">
                 <div className="mx-auto max-w-6xl space-y-4 px-6 py-14">
@@ -75,7 +75,7 @@ export default function FeaturesPage({ app_urls }: FeaturesPageProps) {
                         <div>
                             <h2 className="text-xl font-bold tracking-tight">Per-Tenant Field &amp; Enum Crosswalk</h2>
                             <p className="text-muted-foreground text-sm">
-                                KEEN Products translates each customer account&rsquo;s native Bitrix24 identifiers into canonical keys once at
+                                KEEN Inventory translates each customer account&rsquo;s native Bitrix24 identifiers into canonical keys once at
                                 onboarding.
                             </p>
                         </div>

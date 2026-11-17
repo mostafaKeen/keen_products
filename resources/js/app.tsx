@@ -10,7 +10,7 @@ declare global {
     const route: typeof routeFn;
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'KEEN Products';
+const appName = import.meta.env.VITE_APP_NAME || 'KEEN Inventory';
 
 createInertiaApp({
     title: (title) => (title ? (title.includes(appName) ? title : `${title} - ${appName}`) : appName),

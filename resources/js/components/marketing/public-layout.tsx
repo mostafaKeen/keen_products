@@ -60,7 +60,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             <AppLogoIcon className="h-5 w-5 fill-current text-white" />
                         </div>
                         <div className="leading-tight">
-                            <div className="text-sm font-bold tracking-tight">KEEN Products</div>
+                            <div className="text-sm font-bold tracking-tight">KEEN Inventory</div>
                             <div className="text-muted-foreground text-[11px]">Bitrix24 Market SaaS</div>
                         </div>
                     </Link>
@@ -190,7 +190,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white dark:bg-indigo-500">
                                 <AppLogoIcon className="h-4 w-4 fill-current text-white" />
                             </div>
-                            <span className="text-sm font-bold tracking-tight">KEEN Products</span>
+                            <span className="text-sm font-bold tracking-tight">KEEN Inventory</span>
                         </div>
                         <p className="text-muted-foreground max-w-sm text-xs leading-relaxed">
                             Multi-tenant Bitrix24 Market app for dynamic Professional vs. Government fee breakdowns, automatic account
@@ -280,7 +280,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                 </div>
                 <div className="border-t border-slate-200/70 dark:border-slate-800/70">
                     <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs sm:flex-row">
-                        <span>&copy; {new Date().getFullYear()} KEEN Products. Built for Bitrix24 Cloud &amp; On-Premise.</span>
+                        <span>&copy; {new Date().getFullYear()} KEEN Inventory. Built for Bitrix24 Cloud &amp; On-Premise.</span>
                         <span>Multi-tenant isolation powered by per-account schema mapping &amp; encrypted OAuth.</span>
                     </div>
                 </div>

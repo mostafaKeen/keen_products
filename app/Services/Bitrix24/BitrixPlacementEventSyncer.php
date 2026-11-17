@@ -25,7 +25,7 @@ class BitrixPlacementEventSyncer
         }
         $widgetHandlerUrl = $publicBase.'/bitrix/widget';
         $eventHandlerUrl = $publicBase.'/bitrix/events';
-        $tabTitle = (string) config('services.bitrix24.widget_tab_title', 'KEEN Products');
+        $tabTitle = (string) config('services.bitrix24.widget_tab_title', 'KEEN Inventory');
 
         $warnings = [];
         $placementsBound = [];
@@ -103,7 +103,7 @@ class BitrixPlacementEventSyncer
                         'PLACEMENT' => $placementCode,
                         'HANDLER' => $widgetHandlerUrl,
                         'TITLE' => $tabTitle,
-                        'DESCRIPTION' => 'KEEN Products - Multi-option fee calculator & CRM synchronizer',
+                        'DESCRIPTION' => 'KEEN Inventory - Multi-option fee calculator & CRM synchronizer',
                     ]);
                     $placementsBound[] = $placementCode;
                 } catch (BitrixApiException $e) {

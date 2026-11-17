@@ -129,13 +129,13 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
 
     return (
         <div className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-            <Head title={`Install KEEN Products — ${tenantState.domain}`} />
+            <Head title={`Install KEEN Inventory — ${tenantState.domain}`} />
 
             <div className="mx-auto max-w-5xl space-y-6">
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">KEEN Products Installer</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">KEEN Inventory Installer</h1>
                         <p className="text-muted-foreground text-sm">
                             Account: <span className="text-foreground font-medium">{tenantState.domain}</span> · Member ID:{' '}
                             <span className="font-mono text-xs">{tenantState.member_id}</span>
@@ -290,7 +290,7 @@ export default function BitrixInstallWizard({ error, jwt, bx24_script_url, tenan
                                     <AlertDescription className="space-y-2">
                                         <p>
                                             Account status is now <strong>{completeResult.install_status}</strong>. You can now open any configured
-                                            Deal, Lead, or Quote in Bitrix24 and use the <strong>KEEN Products</strong> tab.
+                                            Deal, Lead, or Quote in Bitrix24 and use the <strong>KEEN Inventory</strong> tab.
                                         </p>
                                         {completeResult.bindings?.placements && (
                                             <div className="text-xs">

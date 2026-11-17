@@ -14,7 +14,7 @@ interface PrivacyPageProps {
 export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
     return (
         <PublicLayout>
-            <Head title="Privacy Policy — KEEN Products" />
+            <Head title="Privacy Policy — KEEN Inventory" />
 
             {/* Header */}
             <section className="border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/70 to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/30 dark:to-slate-950">
@@ -30,7 +30,7 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                         Privacy Policy
                     </h1>
                     <p className="text-muted-foreground text-sm sm:text-base">
-                        How <strong>KEEN Products</strong> handles, secures, and protects your information when used within Bitrix24.
+                        How <strong>KEEN Inventory</strong> handles, secures, and protects your information when used within Bitrix24.
                     </p>
                     <div className="text-muted-foreground flex flex-wrap items-center gap-4 pt-1 text-xs">
                         <span>Last Updated: November 2026</span>
@@ -73,7 +73,7 @@ export default function PrivacyPage({ app_urls }: PrivacyPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">1. Introduction &amp; Scope</h2>
                     <p>
-                        This Privacy Policy describes how <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) collects, uses, and safeguards information through the <strong>KEEN Products</strong> application (&ldquo;Application&rdquo;) designed for the Bitrix24 Market.
+                        This Privacy Policy describes how <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) collects, uses, and safeguards information through the <strong>KEEN Inventory</strong> application (&ldquo;Application&rdquo;) designed for the Bitrix24 Market.
                     </p>
                     <p>
                         This policy applies to all Bitrix24 Cloud and On-Premise (Self-Hosted) accounts where the Application is installed. By installing or utilizing the Application, you acknowledge and consent to the data practices described in this document.

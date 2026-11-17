@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'KEEN Products'),
+    'name' => env('APP_NAME', 'KEEN Inventory'),
 
     /*
     |--------------------------------------------------------------------------

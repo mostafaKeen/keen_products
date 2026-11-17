@@ -124,12 +124,12 @@ export default function BitrixPortalAdmin({
     if (!is_admin) {
         return (
             <div className="min-h-screen bg-slate-50 p-6 dark:bg-slate-950">
-                <Head title={`KEEN Products — ${tenant.domain}`} />
+                <Head title={`KEEN Inventory — ${tenant.domain}`} />
                 <div className="mx-auto max-w-2xl space-y-4">
                     <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                                <CardTitle>KEEN Products</CardTitle>
+                                <CardTitle>KEEN Inventory</CardTitle>
                                 <Badge variant="secondary">{subEval?.plan?.name ?? 'Trial'}</Badge>
                             </div>
                             <CardDescription>
@@ -139,7 +139,7 @@ export default function BitrixPortalAdmin({
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <p className="text-muted-foreground">
-                                You can manage KEEN Products lines directly inside any enabled CRM Deal, Lead, Quote, or Smart Process tab.
+                                You can manage KEEN Inventory lines directly inside any enabled CRM Deal, Lead, Quote, or Smart Process tab.
                                 Configuration changes and subscription upgrades require a Bitrix24 Account Administrator.
                             </p>
                             {subEval?.banner && (
@@ -240,14 +240,14 @@ export default function BitrixPortalAdmin({
 
     return (
         <div className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-            <Head title={`KEEN Products Settings — ${tenant.domain}`} />
+            <Head title={`KEEN Inventory Settings — ${tenant.domain}`} />
 
             <div className="mx-auto max-w-6xl space-y-5">
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold tracking-tight">KEEN Products Console</h1>
+                            <h1 className="text-2xl font-bold tracking-tight">KEEN Inventory Console</h1>
                             <Badge variant="outline" className="font-mono text-xs">
                                 {tenant.domain}
                             </Badge>

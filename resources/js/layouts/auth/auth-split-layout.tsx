@@ -36,7 +36,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                             <AppLogoIcon className="h-5 w-5 fill-current text-white" />
                         </div>
                         <div className="leading-tight">
-                            <div className="text-sm font-bold tracking-tight text-white">KEEN Products</div>
+                            <div className="text-sm font-bold tracking-tight text-white">KEEN Inventory</div>
                             <div className="text-[11px] text-slate-400">Bitrix24 Market SaaS</div>
                         </div>
                     </Link>
@@ -59,7 +59,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
 
                     <div className="space-y-3">
                         <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                            KEEN Products &amp; Schema Automation for Bitrix24
+                            KEEN Inventory &amp; Schema Automation for Bitrix24
                         </h2>
                         <p className="text-sm leading-relaxed text-slate-300">
                             Manage subscription tiers, inspect Bitrix24 Cloud &amp; On-Premise account integrations, and govern automated CRM &amp; SPA
@@ -92,7 +92,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
                             <AppLogoIcon className="h-4 w-4 fill-current text-white" />
                         </div>
-                        <span className="text-foreground text-sm font-bold tracking-tight">KEEN Products</span>
+                        <span className="text-foreground text-sm font-bold tracking-tight">KEEN Inventory</span>
                     </Link>
 
                     <Link
@@ -100,7 +100,7 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                         className="text-muted-foreground hover:text-foreground ml-auto inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
                     >
                         <ArrowLeft className="h-3.5 w-3.5" />
-                        Back to KEEN Products
+                        Back to KEEN Inventory
                     </Link>
                 </div>
 

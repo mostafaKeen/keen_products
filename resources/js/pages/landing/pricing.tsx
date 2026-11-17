@@ -14,7 +14,7 @@ interface PricingPageProps {
 const faqs = [
     {
         q: 'How does the trial start when a customer installs the Bitrix24 app?',
-        a: 'During Bitrix24 Market installation (/bitrix/install), KEEN Products provisions the tenant account row and activates the default 7-day free trial subscription automatically using the configured plan trial_days.',
+        a: 'During Bitrix24 Market installation (/bitrix/install), KEEN Inventory provisions the tenant account row and activates the default 7-day free trial subscription automatically using the configured plan trial_days.',
     },
     {
         q: 'What if two Bitrix24 accounts have completely different UF_CRM_* or Catalog property IDs?',
@@ -46,7 +46,7 @@ export default function PricingPage({ plans = [] }: PricingPageProps) {
 
     return (
         <PublicLayout>
-            <Head title="Pricing & Subscription Tiers — KEEN Products" />
+            <Head title="Pricing & Subscription Tiers — KEEN Inventory" />
 
             <section className="border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/70 to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/30 dark:to-slate-950">
                 <div className="mx-auto max-w-6xl space-y-5 px-6 py-14 text-center">

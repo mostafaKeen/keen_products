@@ -14,7 +14,7 @@ interface EulaPageProps {
 export default function EulaPage({ app_urls }: EulaPageProps) {
     return (
         <PublicLayout>
-            <Head title="End User License Agreement (EULA) — KEEN Products" />
+            <Head title="End User License Agreement (EULA) — KEEN Inventory" />
 
             {/* Header */}
             <section className="border-b border-slate-200/80 bg-gradient-to-b from-indigo-50/70 to-slate-50 dark:border-slate-800/80 dark:from-indigo-950/30 dark:to-slate-950">
@@ -30,7 +30,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                         End User License Agreement (EULA)
                     </h1>
                     <p className="text-muted-foreground text-sm sm:text-base">
-                        Terms of Service and License Conditions for the <strong>KEEN Products</strong> Application on the Bitrix24 Market.
+                        Terms of Service and License Conditions for the <strong>KEEN Inventory</strong> Application on the Bitrix24 Market.
                     </p>
                     <div className="text-muted-foreground flex flex-wrap items-center gap-4 pt-1 text-xs">
                         <span>Last Updated: November 2026</span>
@@ -73,7 +73,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                 <section className="space-y-3">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">1. Agreement to Terms</h2>
                     <p>
-                        This End User License Agreement (&ldquo;EULA&rdquo; or &ldquo;Agreement&rdquo;) is a binding legal contract between <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) and the entity or individual (&ldquo;Customer&rdquo;, &ldquo;you&rdquo;, or &ldquo;Licensee&rdquo;) installing, configuring, or using the <strong>KEEN Products</strong> application (&ldquo;Application&rdquo;) from the Bitrix24 Market.
+                        This End User License Agreement (&ldquo;EULA&rdquo; or &ldquo;Agreement&rdquo;) is a binding legal contract between <strong>KEEN Enterprises</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) and the entity or individual (&ldquo;Customer&rdquo;, &ldquo;you&rdquo;, or &ldquo;Licensee&rdquo;) installing, configuring, or using the <strong>KEEN Inventory</strong> application (&ldquo;Application&rdquo;) from the Bitrix24 Market.
                     </p>
                     <p>
                         By installing, authorizing through OAuth, or using the Application within your Bitrix24 Cloud or On-Premise instance, you agree to be bound by all terms in this Agreement. If you are acting on behalf of a company or organization, you represent that you have legal authority to bind that entity.
@@ -136,7 +136,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                         You retain full, exclusive ownership of all CRM Deals, Leads, Quotes, Catalog products, and custom fields residing inside your Bitrix24 instance.
                     </p>
                     <p>
-                        KEEN Products operates as an authorized processing agent over the Bitrix24 REST API. All OAuth tokens and secrets are stored using AES-256-CBC encryption, and embedded iframe communications are authenticated with short-lived HS256 JWT tokens. We do not sell, rent, or disclose your CRM information to third parties.
+                        KEEN Inventory operates as an authorized processing agent over the Bitrix24 REST API. All OAuth tokens and secrets are stored using AES-256-CBC encryption, and embedded iframe communications are authenticated with short-lived HS256 JWT tokens. We do not sell, rent, or disclose your CRM information to third parties.
                     </p>
                 </section>
 
@@ -181,7 +181,7 @@ export default function EulaPage({ app_urls }: EulaPageProps) {
                         For legal notices, billing questions, or licensing assistance, please contact:
                     </p>
                     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs dark:border-slate-800 dark:bg-slate-900">
-                        <div className="font-semibold text-slate-900 dark:text-slate-100">KEEN Enterprises — KEEN Products Support</div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-100">KEEN Enterprises — KEEN Inventory Support</div>
                         <div className="mt-1 flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
                             <Mail className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                             Email: <a href="mailto:apps@keenenter.com" className="font-medium text-indigo-600 hover:underline dark:text-indigo-400">apps@keenenter.com</a>
